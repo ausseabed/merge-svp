@@ -3,7 +3,10 @@ from typing import Tuple
 
 # collection of utility functions
 
-def dms_to_decimal(degrees: float, minutes: float, seconds: float) -> float:
+def dms_to_decimal(
+        degrees: float,
+        minutes: float = 0,
+        seconds: float = 0) -> float:
     """Converts lat or long provided as degrees, minutes, and seconds into
     decimal form"""
     abs_degrees = abs(degrees)

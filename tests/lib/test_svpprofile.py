@@ -33,6 +33,49 @@ def test_parse_l0_header_line():
     assert svp.longitude == pytest.approx(130.9278)
 
 
+def test_parse_l0_header_line_long():
+    # sometimes "Long" is used in place of "Longitude"
+    lines = [
+        "Long: 130 55 40 E",
+    ]
+
+    svp = SvpProfile()
+    for line in lines:
+        _parse_l0_header_line(line, svp)
+
+    assert svp.longitude == pytest.approx(130.9278)
+
+
+def test_parse_l0_header_line_date_with_extra():
+    # sometimes the date string has a bit of extra info that resulted
+    # in the parse failing
+    lines = [
+        "Now: 01/06/2015 01:11:13 UT",
+    ]
+
+    svp = SvpProfile()
+    for line in lines:
+        _parse_l0_header_line(line, svp)
+
+    assert svp.timestamp == datetime(2015, 6, 1, 1, 11, 13)
+
+
+def test_parse_l0_header_missing_seconds():
+    # sometimes the seconds are not included in the degrees minutes seconds
+    # entry for lat or long
+    lines = [
+        "Latitude: -12 13.00",
+        "Long: 130 53.01"
+    ]
+
+    svp = SvpProfile()
+    for line in lines:
+        _parse_l0_header_line(line, svp)
+
+    assert svp.latitude == pytest.approx(-12.21667)
+    assert svp.longitude == pytest.approx(130.8835)
+    
+
 def test_parse_l0_header_line():
 
     lines = [

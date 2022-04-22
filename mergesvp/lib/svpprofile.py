@@ -46,17 +46,24 @@ class SvpProfile:
 def _parse_l0_header_line(line: str, svp: SvpProfile) -> None:
     if line.startswith("Now:"):
         date_str = line[5:]
-        print("*" + date_str + "*")
+        date_format = r'%d/%m/%Y %H:%M:%S'
+        # parsing date string will fail if there are additional characters
+        # so split the string at space chars, and rejoin only the first
+        # two (date and time)
+        date_str = ' '.join(date_str.split()[:2])
         svp.timestamp = datetime.strptime(
-            date_str, r'%d/%m/%Y %H:%M:%S'
+            date_str, date_format
         )
     elif line.startswith("Latitude:"):
-        lat_str = line[10:]
+        lat_str = line.split(':')[1].strip()
         lat_vals = [float(s) for s in lat_str.split()[0:3]]
         lat = dms_to_decimal(*lat_vals)
         svp.latitude = lat
-    elif line.startswith("Longtitude:"):
-        lng_str = line[12:]
+    elif (
+            line.startswith("Longtitude:") or 
+            line.startswith("Longitude:") or 
+            line.startswith("Long:")):
+        lng_str = line.split(':')[1].strip()
         lng_vals = [float(s) for s in lng_str.split()[0:3]]
         lng = dms_to_decimal(*lng_vals)
         svp.longitude = lng
@@ -79,11 +86,17 @@ def _read_l0(filename: Path) -> SvpProfile:
     with filename.open('r') as file:
         lines = file.read().splitlines()
         for (i,line) in enumerate(lines):
-            if i <= 9:
-                # there are 9 header/metadata lines
-                _parse_l0_header_line(line, svp)
-            else:
-                _parse_l0_body_line(line, svp)
+            try:
+                if i <= 9:
+                    # there are 9 header/metadata lines
+                    _parse_l0_header_line(line, svp)
+                else:
+                    _parse_l0_body_line(line, svp)
+            except Exception as ex:
+                msg = f"error parsing file {filename} at line {i+1}"
+                raise SvpParsingException(msg)
+             
+
     return svp
 
 
