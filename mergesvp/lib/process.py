@@ -1,6 +1,7 @@
 import click
 import csv
 import os
+import logging
 from email import header
 from datetime import datetime
 from typing import BinaryIO, TextIO, List
@@ -8,6 +9,8 @@ from pathlib import Path
 
 from mergesvp.lib.errors import SvpMissingDataException, SvpParsingException
 from mergesvp.lib.svpprofile import get_svp_profile_format, get_svp_read_function
+
+logger = logging.getLogger(__name__)
 
 class SvpSource:
     """ Data model class for details read from source file listing individual
@@ -95,13 +98,14 @@ def find_svp_profile_file(filename: str, base_folder: Path) -> Path:
         )
 
 
-def _get_svp(filename: Path) -> None:
+def _get_svp(filename: Path, fail_on_error: bool) -> None:
     # find out what format this SVP profile uses
     svp_format = get_svp_profile_format(filename)
     # get a function to read this file
     svp_reader = get_svp_read_function(svp_format)
     # read the svp file into a SVP profile object
-    svp = svp_reader(filename)
+    svp = svp_reader(filename, fail_on_error)
+    svp.filename = filename
 
     return svp
 
@@ -109,24 +113,33 @@ def _get_svp(filename: Path) -> None:
 def generate_merged_output(
         svp_source_list: List[SvpSource],
         base_folder: Path,
-        output: TextIO) -> None:
+        output: TextIO,
+        fail_on_error: bool) -> None:
     """Generates the merged SVP output file"""
     # iterate through each SvpSource object (effectivity each line of
     # the CSV file that gives us a SVP profile filename, date, and
     # location)
+    svps = []
     with click.progressbar(svp_source_list) as svp_sources:
         for svp_source in svp_sources:
             svp_profile_fn = find_svp_profile_file(
                 svp_source.filename,
                 base_folder
             )
-            svp = _get_svp(svp_profile_fn)
+            svp = _get_svp(svp_profile_fn, fail_on_error)
+            svps.append(svp)
+
+    if not fail_on_error:
+        # then no exceptions have been thrown, but there could be warning
+        # messages so show these to the user.
+        for svp in svps:
+            if svp.has_warning():
+                logger.warn(f"File {svp.filename} generated the following errors when parsing contents")
+                for msg in svp.warnings:
+                    logger.warn(f"    {msg}")
 
 
-
-
-
-def merge_svp_process(input: TextIO, output: TextIO) -> None:
+def merge_svp_process(input: TextIO, output: TextIO, fail_on_error: bool) -> None:
     svps = get_svp_list(input)
     
     # base folder is what we assume is root of all possible
@@ -135,6 +148,6 @@ def merge_svp_process(input: TextIO, output: TextIO) -> None:
     # Assume the base folder is the folder that the 
     base_folder = Path(input.name).parent
 
-    generate_merged_output(svps, base_folder, output)
+    generate_merged_output(svps, base_folder, output, fail_on_error)
 
     header = None

@@ -30,6 +30,11 @@ class SvpProfile:
         self.longitude = longitude
         # array with each element being a tuple of (depth, sound speed)
         self.depth_speed = []
+        # list of warning messages generated when parsing file
+        self.warnings = []
+
+    def has_warning(self) -> bool:
+        return len(self.warnings) != 0
 
 
 ## example L0 header lines
@@ -79,7 +84,7 @@ def _parse_l0_body_line(line: str, svp: SvpProfile) -> None:
     svp.depth_speed.append(depth_and_speed)
 
 
-def _read_l0(filename: Path) -> SvpProfile:
+def _read_l0(filename: Path, fail_on_error: bool = True) -> SvpProfile:
     """Reads a L0 formatted SVP file"""
     svp = SvpProfile()
 
@@ -93,9 +98,11 @@ def _read_l0(filename: Path) -> SvpProfile:
                 else:
                     _parse_l0_body_line(line, svp)
             except Exception as ex:
-                msg = f"error parsing file {filename} at line {i+1}"
-                raise SvpParsingException(msg)
-             
+                svp.warnings.append(f"Failed to parse line number {i+1}")
+                if fail_on_error:
+                    msg = f"error parsing file {filename} at line {i+1}"
+                    raise SvpParsingException(msg)
+
 
     return svp
 
@@ -122,7 +129,7 @@ def _parse_l3_body_line(line: str, svp: SvpProfile) -> None:
     svp.depth_speed.append(depth_and_speed)
 
 
-def _read_l3(filename: Path) -> SvpProfile:
+def _read_l3(filename: Path, fail_on_error: bool = True) -> SvpProfile:
     """Reads a L3 formatted SVP file"""
     svp = SvpProfile()
 
