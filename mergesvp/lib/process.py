@@ -127,12 +127,15 @@ def generate_merged_output(
                 base_folder
             )
             svp = _get_svp(svp_profile_fn, fail_on_error)
-            svps.append(svp)
+            # append both the source info and the SVP profile data
+            # when writing the merged file we use the src data for lat/lng/date
+            src_and_svp = (svp_source, svp)
+            svps.append(src_and_svp)
 
     if not fail_on_error:
         # then no exceptions have been thrown, but there could be warning
         # messages so show these to the user.
-        for svp in svps:
+        for (src, svp) in svps:
             if svp.has_warning():
                 logger.warn(f"File {svp.filename} generated the following errors when parsing contents")
                 for msg in svp.warnings:
