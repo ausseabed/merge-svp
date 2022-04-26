@@ -6,7 +6,30 @@ from mergesvp.lib.svpprofile import \
     _parse_l0_header_line, \
     _parse_l0_body_line, \
     _parse_l3_header_line, \
-    _parse_l3_body_line
+    _parse_l3_body_line, \
+    _is_l0_body_line, \
+    _parse_l0
+
+
+def test_parse_l0():
+    # overall kind of test, there were issues with variable number of header
+    # lines that wasn't being correctly accounted for
+    lines = [
+        "Now: 28/05/2015 23:49:31",
+        "Latitude: -12 14 35 S",
+        "Longtitude: 130 55 40 E",
+        "00.040	24.047	0000.000",
+        "00.202	26.599	1539.508",
+        "00.400	26.911	1539.485",
+    ]
+
+    svp = _parse_l0(lines, True)
+
+    assert svp.timestamp == datetime(2015, 5, 28, 23, 49, 31)
+    assert svp.latitude == pytest.approx(-12.24306)
+    assert svp.longitude == pytest.approx(130.9278)
+
+    assert len(svp.depth_speed) == 3
 
 
 def test_parse_l0_header_line():
@@ -93,6 +116,14 @@ def test_parse_l0_header_line():
     assert svp.depth_speed[1][1] == 1539.508
     assert svp.depth_speed[2][0] == 0.4
     assert len(svp.depth_speed) == 3
+
+
+def test_is_l0_body_line():
+    header_line = "Long: 130 53.01"
+    assert _is_l0_body_line(header_line) == False
+
+    body_line = "00.202	26.599	1539.508"
+    assert _is_l0_body_line(body_line) == True
 
 
 def test_parse_l3_header_line():

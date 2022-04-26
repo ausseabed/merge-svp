@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Callable
+from typing import Callable, List
 
 from mergesvp.lib.errors import SvpParsingException
 from mergesvp.lib.utils import dms_to_decimal
@@ -73,6 +73,18 @@ def _parse_l0_header_line(line: str, svp: SvpProfile) -> None:
         lng = dms_to_decimal(*lng_vals)
         svp.longitude = lng
 
+def _is_l0_body_line(line: str) -> bool:
+    """ Checks if the line is a body line, used to determine
+    if the parser should switch to reading body lines instead of the
+    header"""
+    line_parts = line.split()
+    if len(line_parts) == 3:
+        try:
+            _ = [float(line_bit) for line_bit in line.split()]
+            return True
+        except ValueError as e:
+            return False
+    return False
 
 ## example L0 body lines
 # 00.040	24.047	0000.000
@@ -84,27 +96,36 @@ def _parse_l0_body_line(line: str, svp: SvpProfile) -> None:
     svp.depth_speed.append(depth_and_speed)
 
 
-def _read_l0(filename: Path, fail_on_error: bool = True) -> SvpProfile:
-    """Reads a L0 formatted SVP file"""
+def _parse_l0(
+        lines: List[str],
+        fail_on_error: bool,
+        filename: Path = None) -> SvpProfile:
+    """Parses the lines into an SVP object"""
     svp = SvpProfile()
 
-    with filename.open('r') as file:
-        lines = file.read().splitlines()
-        for (i,line) in enumerate(lines):
-            try:
-                if i <= 9:
-                    # there are 9 header/metadata lines
-                    _parse_l0_header_line(line, svp)
-                else:
-                    _parse_l0_body_line(line, svp)
-            except Exception as ex:
-                svp.warnings.append(f"Failed to parse line number {i+1}")
-                if fail_on_error:
-                    msg = f"error parsing file {filename} at line {i+1}"
-                    raise SvpParsingException(msg)
+    parsing_header = True
+    for (i, line) in enumerate(lines):
+        try:
+            if parsing_header and not _is_l0_body_line(line):
+                _parse_l0_header_line(line, svp)
+            else:
+                parsing_header = False
+                _parse_l0_body_line(line, svp)
 
+        except Exception as ex:
+            svp.warnings.append(f"Failed to parse line number {i+1}")
+            if fail_on_error:
+                msg = f"error parsing file {filename} at line {i+1}"
+                raise SvpParsingException(msg)
 
     return svp
+
+
+def _read_l0(filename: Path, fail_on_error: bool = True) -> SvpProfile:
+    """Reads a L0 formatted SVP file"""
+    with filename.open('r') as file:
+        lines = file.read().splitlines()
+        return _parse_l0(lines, fail_on_error, filename)
 
 
 ## example L3 header line
