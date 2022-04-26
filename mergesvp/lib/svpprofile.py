@@ -96,6 +96,18 @@ def _parse_l0_body_line(line: str, svp: SvpProfile) -> None:
     svp.depth_speed.append(depth_and_speed)
 
 
+def _validate_L0(svp: SvpProfile) -> None:
+    """ Runs a few checks of the data included in the SvpProfile object,
+    includes warnings if anything seems missing.
+    """
+    if svp.latitude is None:
+        svp.warnings.append("Missing latitude, please check file header info")
+    if svp.longitude is None:
+        svp.warnings.append("Missing longitude, please check file header info")
+    if svp.timestamp is None:
+        svp.warnings.append("Missing date, please check file header info")
+
+
 def _parse_l0(
         lines: List[str],
         fail_on_error: bool,
@@ -118,6 +130,7 @@ def _parse_l0(
                 msg = f"error parsing file {filename} at line {i+1}"
                 raise SvpParsingException(msg)
 
+    _validate_L0(svp)
     return svp
 
 
