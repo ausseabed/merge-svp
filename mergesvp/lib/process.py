@@ -2,66 +2,18 @@ import click
 import csv
 import os
 import logging
+import time
 from email import header
 from datetime import datetime
 from typing import BinaryIO, TextIO, List
 from pathlib import Path
 
-from mergesvp.lib.errors import SvpMissingDataException, SvpParsingException
+from mergesvp.lib.errors import SvpMissingDataException
 from mergesvp.lib.svpprofile import get_svp_profile_format, get_svp_read_function
+from mergesvp.lib.merge import write_merged_header, write_merged_svp
+from mergesvp.lib.svplist import SvpSource, parse_svp_line
 
 logger = logging.getLogger(__name__)
-
-class SvpSource:
-    """ Data model class for details read from source file listing individual
-    SVP profiles, and their time and location """
-    def __init__(
-        self,
-        filename: str,
-        timestamp: datetime,
-        latitude: float,
-        longitude:float
-    ) -> None:
-        self.filename = filename
-        self.timestamp = timestamp
-        self.latitude = latitude
-        self.longitude = longitude
-
-    def __repr__(self) -> str:
-        return (
-            f'SVP filename: {self.filename}\n'
-            f' {self.timestamp.isoformat()}\n'
-            f' {self.latitude}, {self.longitude}\n'
-        )
-
-
-def parse_svp_line(row: List[str], filename:str = None, line_num: int = -1) -> SvpSource:
-    """ Parses the CSV data from the source input file into a `SvpSource`
-    object. Peforms error checking on input data and raises a 
-    `SvpParsingException` if validation fails.
-    """
-    if len(row) != 4:
-        msg = (
-            f'Unexpected formatting found in {filename} at line '
-            f'{line_num}, expected 4 data columns'
-        )
-        raise SvpParsingException(msg)
-
-    filename = row[0]
-    try:
-        # Format expected is 28/05/2015 23:49:31
-        timestamp = datetime.strptime(row[1], r'%d/%m/%Y %H:%M:%S')
-        latitude = float(row[2])
-        longitude = float(row[3])
-    except ValueError as e:
-        msg = (
-            f'Unable to parse data in {filename} at line '
-            f'{line_num}, check date format and lat/long values.'
-        )
-        raise SvpParsingException(msg)
-
-    svp = SvpSource(filename, timestamp, latitude, longitude)
-    return svp
 
 
 def get_svp_list(input: TextIO) -> List[SvpSource]:
@@ -120,7 +72,7 @@ def generate_merged_output(
     # the CSV file that gives us a SVP profile filename, date, and
     # location)
     svps = []
-    with click.progressbar(svp_source_list) as svp_sources:
+    with click.progressbar(svp_source_list, label="Reading SVP files") as svp_sources:
         for svp_source in svp_sources:
             svp_profile_fn = find_svp_profile_file(
                 svp_source.filename,
@@ -140,6 +92,14 @@ def generate_merged_output(
                 logger.warn(f"File {svp.filename} generated the following errors when parsing contents")
                 for msg in svp.warnings:
                     logger.warn(f"    {msg}")
+
+    # write header to file
+    write_merged_header(output)
+    # now loop through each of the SVPs we have loaded and write them to the same
+    # merged output
+    with click.progressbar(svps, label="Writing merged SVP file") as src_and_svps:
+        for (svp_source, svp) in src_and_svps:
+            write_merged_svp(output, svp_source, svp)
 
 
 def merge_svp_process(input: TextIO, output: TextIO, fail_on_error: bool) -> None:

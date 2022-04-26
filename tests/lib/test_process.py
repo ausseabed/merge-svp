@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 
-from mergesvp.lib.process import SvpSource, parse_svp_line
+from mergesvp.lib.svplist import SvpSource, parse_svp_line
 from mergesvp.lib.errors import SvpParsingException
 
 def test_svpsource_class():
