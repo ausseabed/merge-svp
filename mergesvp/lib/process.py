@@ -5,13 +5,14 @@ import logging
 import time
 from email import header
 from datetime import datetime
-from typing import BinaryIO, TextIO, List
+from typing import BinaryIO, TextIO, List, Tuple
 from pathlib import Path
 
 from mergesvp.lib.errors import SvpMissingDataException
-from mergesvp.lib.svpprofile import get_svp_profile_format, get_svp_read_function
+from mergesvp.lib.svpprofile import SvpProfile, get_svp_profile_format, get_svp_read_function
 from mergesvp.lib.merge import write_merged_header, write_merged_svp
 from mergesvp.lib.svplist import SvpSource, parse_svp_line
+from mergesvp.lib.utils import trim_to_longest_dive
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +63,21 @@ def _get_svp(filename: Path, fail_on_error: bool) -> None:
     return svp
 
 
+def patch_svp(svp: SvpProfile) -> None:
+    # replace the entire depth vs speed profile with a trimmed version
+    # that only includes the deepest dive part
+    svp.depth_speed = trim_to_longest_dive(svp.depth_speed)
+
+
+def patch_svp_profiles(svps: List[Tuple[SvpSource, SvpProfile]]) -> None:
+    """Performs some additional processing/modifying of the SVP profiles.
+    This currently includes filtering out unnecessary parts of the depth vs
+    sound profile.
+    """
+    for (svp_src, svp_profile) in svps:
+        patch_svp(svp_profile)
+
+
 def generate_merged_output(
         svp_source_list: List[SvpSource],
         base_folder: Path,
@@ -92,6 +108,8 @@ def generate_merged_output(
                 logger.warn(f"File {svp.filename} generated the following errors when parsing contents")
                 for msg in svp.warnings:
                     logger.warn(f"    {msg}")
+
+    patch_svp_profiles(svps)
 
     # write header to file
     write_merged_header(output)

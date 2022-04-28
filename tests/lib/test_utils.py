@@ -1,6 +1,10 @@
 import pytest
 
-from mergesvp.lib.utils import decimal_to_dms, dms_to_decimal
+from mergesvp.lib.utils import \
+    decimal_to_dms, \
+    dms_to_decimal, \
+    _get_all_dives, \
+    trim_to_longest_dive
 
 
 def test_dms_to_decimal():
@@ -45,3 +49,58 @@ def test_decimal_to_dms_neg():
     assert degrees == -12
     assert minutes == 14
     assert seconds == pytest.approx(35)
+
+
+def test_get_all_dives():
+    # note the actual sound speed has no impact on this function, so we
+    # just use the same speed value because it's easier to copy/paste
+    svp_data = [
+        (0.0, 0.1),
+        (0.3, 0.1),  # dive 1
+        (0.1, 0.1),  # dive 2
+        (0.0, 0.1),
+        (0.1, 0.1),
+        (0.2, 0.1),
+        (1.0, 0.1),
+        (1.3, 0.1),  # dive 3
+        (1.2, 0.1),  # dive 4
+        (0.9, 0.1),  # dive 5
+        (0.8, 0.1),  # dive 6
+        (0.2, 0.1),  # dive 7
+        (0.1, 0.1),  # dive 8
+    ]
+
+    all_dives = _get_all_dives(svp_data)
+    assert len(all_dives) == 8
+
+    dive_1 = all_dives[0]
+    assert dive_1[0][0] == 0.0
+    assert dive_1[1][0] == 0.3
+
+    dive_3 = all_dives[2]
+    assert dive_3[0][0] == 0.0
+    assert dive_3[1][0] == 0.1
+    assert dive_3[len(dive_3) - 1][0] == 1.3
+
+
+def test_trim_to_longest_dive():
+    # note the actual sound speed has no impact on this function, so we
+    # just use the same speed value because it's easier to copy/paste
+    svp_data = [
+        (0.0, 0.1),
+        (0.3, 0.1),  # dive 1
+        (0.1, 0.1),  # dive 2
+        (0.0, 0.1),
+        (0.1, 0.1),
+        (0.2, 0.1),
+        (1.0, 0.1),
+        (1.3, 0.1),  # dive 3
+        (1.2, 0.1),  # dive 4
+        (0.9, 0.1),  # dive 5
+        (0.8, 0.1),  # dive 6
+        (0.2, 0.1),  # dive 7
+        (0.1, 0.1),  # dive 8
+    ]
+
+    longest_dive = trim_to_longest_dive(svp_data)
+    assert len(longest_dive) == 5
