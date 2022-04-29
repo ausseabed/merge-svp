@@ -1,6 +1,8 @@
 # merge-svp
 Command line utility for merging Sound Velocity Profiles into single file format supported by Teledyne CARIS
 
+[![Test](https://github.com/ausseabed/merge-svp/actions/workflows/merge-svp-app.yml/badge.svg)](https://github.com/ausseabed/merge-svp/actions/workflows/merge-svp-app.yml)
+
 ## Dependencies
 Merge SVP was written for Python 3.8, earlier versions may work but have not been tested.
 
