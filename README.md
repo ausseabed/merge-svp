@@ -7,6 +7,9 @@ Command line utility for merging Sound Velocity Profiles into single file format
 Merge SVP was written for Python 3.8, earlier versions may work but have not been tested.
 
 ## Installation
+
+**Note:** More detailed instructions for end users of Merge SVP are provided [here](./docs/installation.md). The following steps on this page are intended more for developers.
+
 Clone the repository
 
     git clone https://github.com/ausseabed/merge-svp.git
