@@ -42,8 +42,8 @@ def find_svp_profile_file(filename: str, base_folder: Path) -> Path:
         return base_folder / filename
     elif (base_folder / 'L0' / filename).exists():
         return base_folder / 'L0' / filename
-    elif (base_folder / 'L1' / filename).exists():
-        return base_folder / 'L1' / filename
+    elif (base_folder / 'L2' / filename).exists():
+        return base_folder / 'L2' / filename
     else:
         raise SvpMissingDataException(
             f'Could not find SVP profile file "{filename}" '
