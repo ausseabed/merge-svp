@@ -37,7 +37,7 @@ def find_svp_profile_file(filename: str, base_folder: Path) -> Path:
     locations. Raises `SvpMissingDataException` if the SVP profile
     file listed in the SVP source CSV file cannot be found.
     """
-    # first check the base folder, then L0, then L3
+    # first check the base folder, then L0, then L2
     if (base_folder / filename).exists():
         return base_folder / filename
     elif (base_folder / 'L0' / filename).exists():
@@ -125,7 +125,7 @@ def merge_svp_process(input: TextIO, output: TextIO, fail_on_error: bool) -> Non
     
     # base folder is what we assume is root of all possible
     # locations for the SVP profile files. SVP profiles must be located
-    # under this folder in the same dir, or L0, or L3
+    # under this folder in the same dir, or L0, or L2
     # Assume the base folder is the folder that the 
     base_folder = Path(input.name).parent
 

@@ -8,7 +8,7 @@ from mergesvp.lib.utils import dms_to_decimal
 
 class SvpProfileFormat(Enum):
     L0 = 1
-    L3 = 2
+    L2 = 2
 
 class SvpProfile:
     """ SvpProfile contains the Sound Velocity Profile (SVP) data 
@@ -141,9 +141,9 @@ def _read_l0(filename: Path, fail_on_error: bool = True) -> SvpProfile:
         return _parse_l0(lines, fail_on_error, filename)
 
 
-## example L3 header line
+## example L2 header line
 # ( SoundVelocity  1.0 0 201505282349 -12.24305556 130.92777780 -1 0 0 SSM_2021.1.7 P 0088 )
-def _parse_l3_header_line(line: str, svp: SvpProfile) -> None:
+def _parse_l2_header_line(line: str, svp: SvpProfile) -> None:
     line_stripped = line.strip(['(',')',' '])
     line_bits = line_stripped.split()
     svp.timestamp = datetime.strptime(
@@ -153,18 +153,18 @@ def _parse_l3_header_line(line: str, svp: SvpProfile) -> None:
     svp.longitude = float(line_bits[4])
 
 
-## example L3 body lines
+## example L2 body lines
 # 0.00 1539.51
 # 0.20 1539.51
 # 0.40 1539.48
-def _parse_l3_body_line(line: str, svp: SvpProfile) -> None:
+def _parse_l2_body_line(line: str, svp: SvpProfile) -> None:
     line_vals = [float(line_bit) for line_bit in line.split()]
     depth_and_speed = (line_vals[0], line_vals[1])
     svp.depth_speed.append(depth_and_speed)
 
 
-def _read_l3(filename: Path, fail_on_error: bool = True) -> SvpProfile:
-    """Reads a L3 formatted SVP file"""
+def _read_l2(filename: Path, fail_on_error: bool = True) -> SvpProfile:
+    """Reads a L2 formatted SVP file"""
     svp = SvpProfile()
 
     with filename.open('r') as file:
@@ -172,9 +172,9 @@ def _read_l3(filename: Path, fail_on_error: bool = True) -> SvpProfile:
         for (i, line) in enumerate(lines):
             if i == 0:
                 # there are 9 header/metadata lines
-                _parse_l3_header_line(line, svp)
+                _parse_l2_header_line(line, svp)
             else:
-                _parse_l3_body_line(line, svp)
+                _parse_l2_body_line(line, svp)
     return svp
 
 
@@ -183,8 +183,8 @@ def get_svp_read_function(format: SvpProfileFormat) -> Callable[[Path], SvpProfi
     read the SVP format given"""
     if format == SvpProfileFormat.L0:
         return _read_l0
-    elif format == SvpProfileFormat.L3:
-        return _read_l3
+    elif format == SvpProfileFormat.L2:
+        return _read_l2
     else:
         raise SvpParsingException(f'Format {format} is not supported')
 
@@ -201,7 +201,7 @@ def get_svp_profile_format(filename: Path) -> SvpProfileFormat:
         elif first_line.startswith('( SoundVelocity'):
             # example first line
             # ( SoundVelocity  1.0 0 201505282349 -12.24305556 130.92777780 -1 0 0 SSM_2021.1.7 P 0088 )
-            return SvpProfileFormat.L3
+            return SvpProfileFormat.L2
         else:
             raise SvpParsingException(
                 f'Could not identify SVP file type of {filename}')

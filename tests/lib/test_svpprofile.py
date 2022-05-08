@@ -5,8 +5,8 @@ from mergesvp.lib.svpprofile import \
     SvpProfile, \
     _parse_l0_header_line, \
     _parse_l0_body_line, \
-    _parse_l3_header_line, \
-    _parse_l3_body_line, \
+    _parse_l2_header_line, \
+    _parse_l2_body_line, \
     _is_l0_body_line, \
     _parse_l0
 
@@ -126,18 +126,18 @@ def test_is_l0_body_line():
     assert _is_l0_body_line(body_line) == True
 
 
-def test_parse_l3_header_line():
+def test_parse_l2_header_line():
     line = "( SoundVelocity  1.0 0 201505282349 -12.24305556 130.92777780 -1 0 0 SSM_2021.1.7 P 0088 )"
 
     svp = SvpProfile()
-    _parse_l3_body_line(line, svp)
+    _parse_l2_body_line(line, svp)
 
     assert svp.timestamp == datetime(2015, 5, 28, 23, 49, 00)
     assert svp.latitude == pytest.approx(-12.24305556)
     assert svp.longitude == pytest.approx(130.92777780)
 
 
-def test_parse_l3_header_line():
+def test_parse_l2_header_line():
 
     lines = [
         "0.00 1539.51",
@@ -147,7 +147,7 @@ def test_parse_l3_header_line():
 
     svp = SvpProfile()
     for line in lines:
-        _parse_l3_body_line(line, svp)
+        _parse_l2_body_line(line, svp)
 
     # a few spot checks of the data
     assert svp.depth_speed[0][0] == 0.00
