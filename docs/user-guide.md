@@ -181,10 +181,24 @@ Consider the following input data series.
 Only the section from the start to end of the longest dive will be included in the merged svp output file.
 
 
-
 ## Running the application
+Merge SVP is a command line only application, there is no graphical user interface.
+A complete list of available commands and arguments can be obtained from the application with the following command.
 
+    mergesvp --help
 
+Merge SVP requires two input arguements; the location of the input SVP file list, and the output file to generate. These are specified by using the following arguments;
+- `-i path/to/input/file.csv` location of the SVP input file list
+- `-o path/to/output/file.txt` location of the merged SVP output file
+
+An example command line is shown below.
+
+    mergesvp -i /Users/lachlan/mergesvp/svp_time_location_data.csv -o /Users/lachlan/mergesvp/merged_output.txt
+
+An optional command line argument `-e` is also available. By default Merge SVP will continue if possible after encountering a non-critical error and provide a warning message. By including this argument all warnings are treated as errors and the application will exit for any issues found in input files.
 
 
 ## Warnings and errors
+Warnings are generated when Merge SVP encounters an issue, but is able to continue processing without adverse effects on output data. An example is missing metadata within one of the SVP data files, if a latitude/longitude value is missing, Merge SVP is able to continue as the information from the list csv file is used instead. Multiple warning messages may be produced.
+
+Errors are produced when Merge SVP encounters an issue it can not recover from; when this happens the application will output an error message and exit. A partial output file may have been generated, but this should be disregarded. Merge SVP will generate an error if it encounters a formatting issue related to information it requires, or if a SVP data file referenced within the csv list is not found.
