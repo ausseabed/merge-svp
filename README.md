@@ -28,6 +28,8 @@ Once installed the inputs to the command line tool can be shown with
 
     mergesvp --help
 
+The complete user guide for Merge SVP can be found here [docs/user-guide.md](./docs/user-guide.md).
+
 ## Testing
 Unit tests are included in `./tests` these use the [pytest](https://docs.pytest.org/) framework and can be run using the following command.
 
