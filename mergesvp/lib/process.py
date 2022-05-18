@@ -120,7 +120,7 @@ def generate_merged_output(
             write_merged_svp(output, svp_source, svp)
 
 
-def merge_svp_process(input: TextIO, output: TextIO, fail_on_error: bool) -> None:
+def merge_raw_svp_process(input: TextIO, output: TextIO, fail_on_error: bool) -> None:
     svps = get_svp_list(input)
     
     # base folder is what we assume is root of all possible

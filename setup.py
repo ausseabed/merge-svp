@@ -18,7 +18,7 @@ setup(
     entry_points={
         "gui_scripts": [],
         "console_scripts": [
-            'mergesvp = mergesvp.mergesvp:merge_svp',
+            'mergesvp = mergesvp.mergesvp:main',
         ],
     },
     packages=[
