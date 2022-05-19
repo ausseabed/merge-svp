@@ -3,3 +3,6 @@ class SvpParsingException(Exception):
 
 class SvpMissingDataException(Exception):
     pass
+
+class ParserNotImplemeneted(Exception):
+    pass

@@ -9,7 +9,8 @@ from typing import BinaryIO, TextIO, List, Tuple
 from pathlib import Path
 
 from mergesvp.lib.errors import SvpMissingDataException
-from mergesvp.lib.svpprofile import SvpProfile, get_svp_profile_format, get_svp_read_function
+from mergesvp.lib.svpprofile import SvpProfile
+from mergesvp.lib.parsers import get_svp_profile_format, get_svp_parser
 from mergesvp.lib.merge import write_merged_header, write_merged_svp
 from mergesvp.lib.svplist import SvpSource, parse_svp_line
 from mergesvp.lib.utils import trim_to_longest_dive
@@ -54,11 +55,12 @@ def find_svp_profile_file(filename: str, base_folder: Path) -> Path:
 def _get_svp(filename: Path, fail_on_error: bool) -> None:
     # find out what format this SVP profile uses
     svp_format = get_svp_profile_format(filename)
-    # get a function to read this file
-    svp_reader = get_svp_read_function(svp_format)
+    # get a parser to read this file
+    svp_parser = get_svp_parser(svp_format)
+    svp_parser.fail_on_error = fail_on_error
     # read the svp file into a SVP profile object
-    svp = svp_reader(filename, fail_on_error)
-    svp.filename = filename
+
+    svp = svp_parser.read(filename)
 
     return svp
 
