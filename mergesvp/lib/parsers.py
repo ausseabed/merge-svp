@@ -1,11 +1,12 @@
 from asyncore import read
 from pathlib import Path
-from typing import List
+from typing import List, TextIO, Iterable
 from datetime import datetime
+import click
 
 from mergesvp.lib.errors import ParserNotImplemeneted, SvpParsingException
 from mergesvp.lib.svpprofile import SvpProfile, SvpProfileFormat
-from mergesvp.lib.utils import dms_to_decimal
+from mergesvp.lib.utils import dms_to_decimal, decimal_to_dms
 
 class SvpParser:
     """ Base class for all parsers that read or write SvpProfiles
@@ -15,6 +16,7 @@ class SvpParser:
         # should be set in all child classes
         self.supports_many_svps = False
         self.fail_on_error = True
+        self.show_progress = False
 
     def read(self, path: Path) -> SvpProfile:
         return self.read_many(path)[0]
@@ -198,7 +200,71 @@ class L2SvpParser(SvpParser):
 
 
 class CarisSvpParser(SvpParser):
-    pass
+    """ Reads and writes CARIS formatted SVP files, these may contain multiple
+    SVP profiles for different locations and times.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.supports_many_svps = True
+
+    def _write_header(self, output: TextIO) -> None:
+        """Writes the header information to output, in this case it is a single
+        text line followed by the filename itself"""
+        lines = [
+            "[SVP_VERSION_2]\n",
+            Path(output.name).name + "\n"
+        ]
+        output.writelines(lines)
+
+
+    def __formatted_dms(self, val: float) -> str:
+        dms = decimal_to_dms(val)
+        return f"{dms[0]}:{dms[1]}:{dms[2]}"
+
+
+    def _get_caris_svp_lines(self, svp: SvpProfile) -> List[str]:
+
+        # example SVP section header line
+        # Section 2015-148 23:49:31 -12:14:35.00 130:55:40.00
+        date_str = svp.timestamp.strftime('%Y-%j')
+        lat_str = self.__formatted_dms(svp.latitude)
+        lng_str = self.__formatted_dms(svp.longitude)
+        header_line = f"Section {date_str} {lat_str} {lng_str}\n"
+
+        svp_lines = [
+            f"{depth:.6f} {speed:.6f}\n"
+            for (depth, speed) in svp.depth_speed
+        ]
+
+        svp_lines.insert(0, header_line)
+        return svp_lines
+
+
+    def _write_all_svps(
+            self,
+            svps: Iterable[SvpProfile],
+            output: TextIO) -> None:
+
+        # loop through each of the SVPs we have and write them to the same
+        # output
+        for svp in svps:
+            lines = self._get_caris_svp_lines(svp)
+            output.writelines(lines)
+
+
+    def write_many(self, path: Path, svps: List[SvpProfile]) -> None:
+        with path.open(mode='w') as output:
+            # write header to file
+            self._write_header(output)
+            if self.show_progress:
+                with click.progressbar(svps, label="Writing merged SVP file") as svps_iter:
+                    self._write_all_svps(svps_iter, output)
+            else:
+                self._write_all_svps(svps, output)
+
+    def read_many(self, path: Path) -> List[SvpProfile]:
+        pass
 
 
 def get_svp_parser(format: SvpProfileFormat) -> SvpParser:

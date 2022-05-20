@@ -10,8 +10,7 @@ from pathlib import Path
 
 from mergesvp.lib.errors import SvpMissingDataException
 from mergesvp.lib.svpprofile import SvpProfile
-from mergesvp.lib.parsers import get_svp_profile_format, get_svp_parser
-from mergesvp.lib.merge import write_merged_header, write_merged_svp
+from mergesvp.lib.parsers import CarisSvpParser, get_svp_profile_format, get_svp_parser
 from mergesvp.lib.svplist import SvpSource, parse_svp_line
 from mergesvp.lib.utils import trim_to_longest_dive
 
@@ -65,10 +64,16 @@ def _get_svp(filename: Path, fail_on_error: bool) -> None:
     return svp
 
 
-def patch_svp(svp: SvpProfile) -> None:
+def patch_svp(src: SvpSource, svp: SvpProfile) -> None:
     # replace the entire depth vs speed profile with a trimmed version
     # that only includes the deepest dive part
     svp.depth_speed = trim_to_longest_dive(svp.depth_speed)
+
+    # some attributes read from individual SVP files should be replaced
+    # by what was included in the source list file (the CSV one)
+    svp.latitude = src.latitude
+    svp.longitude = src.longitude
+    svp.timestamp = src.timestamp
 
 
 def patch_svp_profiles(svps: List[Tuple[SvpSource, SvpProfile]]) -> None:
@@ -77,7 +82,7 @@ def patch_svp_profiles(svps: List[Tuple[SvpSource, SvpProfile]]) -> None:
     sound profile.
     """
     for (svp_src, svp_profile) in svps:
-        patch_svp(svp_profile)
+        patch_svp(svp_src, svp_profile)
 
 
 def generate_merged_output(
@@ -111,15 +116,18 @@ def generate_merged_output(
                 for msg in svp.warnings:
                     logger.warn(f"    {msg}")
 
+    # update details of the SvpProfiles
     patch_svp_profiles(svps)
 
-    # write header to file
-    write_merged_header(output)
-    # now loop through each of the SVPs we have loaded and write them to the same
-    # merged output
-    with click.progressbar(svps, label="Writing merged SVP file") as src_and_svps:
-        for (svp_source, svp) in src_and_svps:
-            write_merged_svp(output, svp_source, svp)
+    # svps was a list of tuples including a SvpSource, and SvpProfile
+    # we only need to write the SvpProfile info now that it has been
+    # patched
+    svps_only = [svp for (_, svp) in svps]
+
+    writer = CarisSvpParser()
+    writer.show_progress = True
+    output_path = Path(os.path.realpath(output.name))
+    writer.write_many(output_path, svps_only)
 
 
 def merge_raw_svp_process(input: TextIO, output: TextIO, fail_on_error: bool) -> None:
