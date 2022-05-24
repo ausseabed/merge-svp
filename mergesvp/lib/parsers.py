@@ -293,6 +293,8 @@ def get_svp_profile_format(filename: Path) -> SvpProfileFormat:
             # example first line
             # ( SoundVelocity  1.0 0 201505282349 -12.24305556 130.92777780 -1 0 0 SSM_2021.1.7 P 0088 )
             return SvpProfileFormat.L2
+        elif first_line.startswith('[SVP_VERSION_2]'):
+            return SvpProfileFormat.CARIS
         else:
             raise SvpParsingException(
                 f'Could not identify SVP file type of {filename}')
