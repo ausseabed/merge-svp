@@ -208,6 +208,9 @@ class CarisSvpParser(SvpParser):
         super().__init__()
         self.supports_many_svps = True
 
+        self._current_line_number = None
+        self._current_filename = None
+
     def _write_header(self, output: TextIO) -> None:
         """Writes the header information to output, in this case it is a single
         text line followed by the filename itself"""
@@ -263,8 +266,62 @@ class CarisSvpParser(SvpParser):
             else:
                 self._write_all_svps(svps, output)
 
+
+    def _read_section_header(
+            self, svp: SvpProfile, line: str) -> None:
+        """Populates svp with data read from the given header line"""
+        linebits = line.split()
+        if (len(linebits) != 5):
+            msg = (
+                "Error reading section header information from line number"
+                f"{self._current_line_number} in file {self._current_filename}"
+            )
+            raise SvpParsingException(msg)
+        line_date_time = linebits[1] + " " + linebits[2]
+        line_lat = linebits[3]
+        line_lng = linebits[4]
+
+        svp.timestamp = datetime.strptime(line_date_time, '%Y-%j %H:%M:%S')
+
+        lat_vals = [float(s) for s in line_lat.split(':')[0:3]]
+        svp.latitude = dms_to_decimal(*lat_vals)
+        lng_vals = [float(s) for s in line_lng.split(':')[0:3]]
+        svp.longitude = dms_to_decimal(*lng_vals)
+
+
+    def _parse_body_line(self, svp: SvpProfile, line: str) -> None:
+        linebits = line.split()
+        depth_speed = (float(linebits[0]), float(linebits[1]))
+        svp.depth_speed.append((depth_speed))
+
+
+    def _read_many(self, lines: List[str]) -> List[SvpProfile]:
+        svps = []
+        # the active SVP that data is being read into
+        svp = None
+        for (i, line) in enumerate(lines):
+            self._current_line_number = i + 1  # first line number is 1
+            if line.startswith('Section '):
+                # then it's the beginning of a new sound velocity profile
+                svp = SvpProfile()
+                svps.append(svp)
+                self._read_section_header(svp, line)
+            elif svp is None:
+                # then we haven't yet read a 'Section' from the SVP file, so skip
+                # these lines till we do. There is a single '[SVP_VERSION_2]' file,
+                # sometimes followed by 'CONVERT - ...' line.
+                pass
+            else:
+                self._parse_body_line(svp, line)
+
+        return svps
+
+
     def read_many(self, path: Path) -> List[SvpProfile]:
-        pass
+        self._current_filename = str(path)
+        with path.open('r') as file:
+            lines = file.read().splitlines()
+            return self._read_many(lines)
 
 
 def get_svp_parser(format: SvpProfileFormat) -> SvpParser:

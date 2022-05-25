@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 
 from mergesvp.lib.svpprofile import SvpProfile
-from mergesvp.lib.parsers import L0SvpParser, L2SvpParser
+from mergesvp.lib.parsers import CarisSvpParser, L0SvpParser, L2SvpParser
 
 
 def test_parse_l0():
@@ -156,3 +156,50 @@ def test_parse_l2_header_line():
     assert svp.depth_speed[1][1] == 1539.51
     assert svp.depth_speed[2][0] == 0.4
     assert len(svp.depth_speed) == 3
+
+
+def test_parse_caris_section_header():
+    line = "Section  2015-146 00:01:18 01:01:01 002:02:02"
+
+    parser = CarisSvpParser()
+    svp = SvpProfile()
+    parser._read_section_header(svp, line)
+
+    assert svp.timestamp == datetime(2015, 5, 26, 0, 1, 18)
+    assert svp.latitude == pytest.approx(1.016944)
+    assert svp.longitude == pytest.approx(2.033889)
+
+
+def test_parse_caris_read_many():
+    lines = [
+        "[SVP_VERSION_2]",
+        "CONVERT - E:\\0002_20150527_055057_SurveySetup.all",
+        "Section  2015-146 00:01:18 00:00:00 000:00:00",
+        "    0.000  1539.60",
+        "    0.410  1539.60",
+        "    0.600  1539.30",
+        "    0.800  1539.20",
+        "    1.000  1539.20",
+        "    1.200  1539.20",
+        "    1.410  1539.10",
+        "Section  2015-147 00:01:18 00:00:00 000:00:00",
+        "    0.000  1539.60",
+        "    1.410  1539.61",
+        "    2.600  1539.32",
+        "    3.800  1539.23",
+    ]
+
+    parser = CarisSvpParser()
+    svps = parser._read_many(lines)
+
+    assert len(svps) == 2
+
+    svp1 = svps[0]
+    assert len(svp1.depth_speed) == 7
+    assert svp1.depth_speed[6][0] == 1.41
+    assert svp1.depth_speed[6][1] == 1539.10
+
+    svp2 = svps[1]
+    assert len(svp2.depth_speed) == 4
+    assert svp2.depth_speed[2][0] == 2.6
+    assert svp2.depth_speed[2][1] == 1539.32
