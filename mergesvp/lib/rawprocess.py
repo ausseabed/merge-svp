@@ -1,3 +1,6 @@
+""" Code for merging multiple L0 and L2 SVP files into a single CARIS
+formatted SVP file.
+"""
 import click
 import csv
 import os

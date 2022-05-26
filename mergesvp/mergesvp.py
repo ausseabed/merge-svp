@@ -1,7 +1,9 @@
+from pathlib import Path
 import click
 import logging
 
-from mergesvp.lib.process import merge_raw_svp_process
+from mergesvp.lib.rawprocess import merge_raw_svp_process
+from mergesvp.lib.carisprocess import merge_caris_svp_process
 
 
 def configure_logger():
@@ -37,10 +39,25 @@ def merge_raw_svp(ctx, input, output):
 
 
 @click.command()
+@click.option(
+    '-i', '--input',
+    required=True,
+    type=click.Path(exists=True, file_okay=False, resolve_path=True),
+    help=(
+        "Path to root file containing multiple SVP files. This folder and "
+        "all subfolders will be searched for files named 'svp' (no extension)."
+    )
+)
+@click.option(
+    '-o', '--output',
+    type=click.File('w'),
+    help="Output location for merged SVP file."
+)
 @click.pass_context
-def merge_caris_svp(ctx):
+def merge_caris_svp(ctx, input, output):
     click.echo('Merge CARIS SVPs')
     click.echo(f"fail on error = {ctx.obj['fail_on_error']}")
+    merge_caris_svp_process(Path(input), output, ctx.obj['fail_on_error'])
 
 
 @click.group()
