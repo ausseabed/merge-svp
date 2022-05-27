@@ -271,7 +271,7 @@ class CarisSvpParser(SvpParser):
             self, svp: SvpProfile, line: str) -> None:
         """Populates svp with data read from the given header line"""
         linebits = line.split()
-        if (len(linebits) != 5):
+        if (len(linebits) < 5):
             msg = (
                 "Error reading section header information from line number"
                 f"{self._current_line_number} in file {self._current_filename}"
@@ -287,6 +287,9 @@ class CarisSvpParser(SvpParser):
         svp.latitude = dms_to_decimal(*lat_vals)
         lng_vals = [float(s) for s in line_lng.split(':')[0:3]]
         svp.longitude = dms_to_decimal(*lng_vals)
+
+        # Note: some section headers include a "Datagram time:" this is not
+        # currently extracted by the above code.
 
 
     def _parse_body_line(self, svp: SvpProfile, line: str) -> None:

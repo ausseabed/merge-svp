@@ -55,8 +55,8 @@ def merge_raw_svp(ctx, input, output):
 )
 @click.pass_context
 def merge_caris_svp(ctx, input, output):
-    click.echo('Merge CARIS SVPs')
-    click.echo(f"fail on error = {ctx.obj['fail_on_error']}")
+    """ Merge multiple CARIS SVP files into a single CARIS SVP file.
+    Note: duplicate profiles are removed during this process."""
     merge_caris_svp_process(Path(input), output, ctx.obj['fail_on_error'])
 
 
