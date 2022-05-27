@@ -304,6 +304,7 @@ class CarisSvpParser(SvpParser):
             if line.startswith('Section '):
                 # then it's the beginning of a new sound velocity profile
                 svp = SvpProfile()
+                svp.filename = self._current_filename
                 svps.append(svp)
                 self._read_section_header(svp, line)
             elif svp is None:
