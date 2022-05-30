@@ -230,7 +230,7 @@ class CarisSvpParser(SvpParser):
 
         # example SVP section header line
         # Section 2015-148 23:49:31 -12:14:35.00 130:55:40.00
-        date_str = svp.timestamp.strftime('%Y-%j')
+        date_str = svp.timestamp.strftime('%Y-%j %H:%M:%S')
         lat_str = self.__formatted_dms(svp.latitude)
         lng_str = self.__formatted_dms(svp.longitude)
         header_line = f"Section {date_str} {lat_str} {lng_str}\n"
