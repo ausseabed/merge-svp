@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+from typing import List, Tuple
 
 
 class SvpProfileFormat(Enum):
@@ -17,7 +18,8 @@ class SvpProfile:
         filename: str = None,
         timestamp: datetime = None,
         latitude: float = None,
-        longitude: float = None
+        longitude: float = None,
+        depth_speed: List[Tuple[float, float]] = None
     ) -> None:
         self.filename = filename
         # in general timestamp, lat and long should be taken from the SvpSource
@@ -27,7 +29,10 @@ class SvpProfile:
         self.latitude = latitude
         self.longitude = longitude
         # array with each element being a tuple of (depth, sound speed)
-        self.depth_speed = []
+        if depth_speed is None:
+            self.depth_speed = []
+        else:
+            self.depth_speed = depth_speed
         # list of warning messages generated when parsing file
         self.warnings = []
 
