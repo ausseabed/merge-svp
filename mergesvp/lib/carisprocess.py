@@ -81,6 +81,17 @@ def group_by_depth_speed(svps: List[SvpProfile]) -> List[List[SvpProfile]]:
     return svp_groups
 
 
+def write_grouping_summary_data(svp_groups: List[List[SvpProfile]], output: TextIO) -> None:
+    """ Writes grouping and filename information to a CSV file. Includes all
+    file names, and what group they belong to
+    """
+    output.write("Group number, SVP filename\n")
+    for (i, svp_group) in enumerate(svp_groups):
+        for svp in svp_group:
+            txt = f"{i}, {svp.filename}\n"
+            output.write(txt)
+
+
 def merge_caris_svp_process(
         path: Path,
         output: TextIO,
@@ -101,6 +112,10 @@ def merge_caris_svp_process(
     writer.show_progress = True
     output_path = Path(os.path.realpath(output.name))
     writer.write_many(output_path, svp_no_dups)
+
+    summary_group_file = output.name + '_group_summary.csv'
+    with open(summary_group_file, 'w') as summary_group_output:
+        write_grouping_summary_data(svp_groups, summary_group_output)
 
     # print some summary info to StdOut
     click.echo(f"{len(svp_paths)} SVP files were found in folder structure")
