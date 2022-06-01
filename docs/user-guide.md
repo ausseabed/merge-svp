@@ -1,12 +1,16 @@
 # Merge SVP User Guide
 Merge SVP is a command line application that supports merging multiple Sound Velocity Profiles (SVP) taken at different locations, into a single file. This single file includes only the essential components of each SVP and some limited metadata (location and timestamp). The format output by Merge SVP has been designed to allow it to be read into the Teledyne CARIS application.
 
-
-## Input file format
-There are three different input file formats that can be read by Merge SVP. The SVP list file must always be provided, but users are free to use either the L0 or L2 formats for individual SVP files.
+Merge SVP operates on two input types; the first is a collection of L0 and L2 formatted SVP files, the second is a collection of CARIS formatted SVP files. The processing performed during the merge process differs depending on which input type is used. *The input type used must be specified by the user on the command line.*
 
 
-### SVP file list format
+## Merge raw SVP (L0 and L2) files
+
+### Input file format
+There are three different input file formats that can be read by the merge raw SVP process; a SVP file list, L0 SVP, and L2 SVP. The SVP list file must always be provided, but users are free to use either the L0 or L2 formats for individual SVP files.
+
+
+#### SVP file list format
 The SVP file list includes a list of all the SVP files that will be included in the output with some additional metadata such as location and date. It is formatted as a comma separated values (csv) file, an example is provided below.
 
     Filename,Date,Latitude,Longitude
@@ -28,7 +32,7 @@ The remainder of the file consists of 4 data columns, defined as follows;
 
 Note: data provided in the list file supersedes information included in the headers of the individual SVP files.
 
-### Auto-detection SVP formats (L0 or L2)
+#### Auto-detection SVP formats (L0 or L2)
 Merge SVP will attempt to automatically identify which format is being used in each reference SVP file. It performs this check against all files included in a SVP file list, it is therefore possible to mix and match formats within a single CSV list file.
 
 The following checks are performed against an SVP file to determine which type it is.
@@ -36,7 +40,7 @@ The following checks are performed against an SVP file to determine which type i
 - First lines beginning with "`( SoundVelocity`" wil be treated as [L3 formatted files](#svp-l2-format)
 
 
-### SVP L0 format
+#### SVP L0 format
 This format stores the sound velocity profile (sound speeds at various depths) for a single location. This section defines the format used by L0 data. An example is included below.
 
     Now: 28/05/2015 23:49:31
@@ -67,7 +71,7 @@ Not all metadata is read from the L0 header, the following list gives the detail
 Once all header lines have been parsed, Merge SVP will read the body data lines. *The first number in each data line is read as the depth, the last number the speed*. The middle number is ignored.
 
 
-### SVP L2 format
+#### SVP L2 format
 As per the previous SVP format, this data stores the SVP data for a single location, but in a different format. An example of the L2 SVP format is included below.
 
     ( SoundVelocity  1.0 0 201505282349 -12.24305556 130.92777780 -1 0 0 SSM_2021.1.7 P 0088 )
@@ -90,7 +94,7 @@ The following pieces of information are read from the header line.
 Merge SVP assumes all lines following the header line include body data that is provided in two space separated columns. First column is depth, second column speed.
 
 
-## Input file structure
+### Input file structure
 Merge SVP expects files to be located relatively according to the location of the [SVP list file](#svp-file-list-format). Each filename listed in the csv is expected to be in the same directory as the csv file, or in a folder named `L0` or `L2` in the same folder as the csv file. There is no requirement for L2 files to be included in the L2 folder; Merge SVP will identify the file type based on its contents.
 
 Merge SVP will first look for SVP data files in the csv folder, followed by the L0 folder, then lastly the L2 folder.
@@ -120,7 +124,7 @@ The following structure is also valid.
     |-- V000011.asvp
 
 
-## Output file
+### Output file
 Merge SVP output files include all SVPs referenced in the SVP file list csv, with meta data taken from the list csv file. An example of the output file format is shown below.
 
     [SVP_VERSION_2]
@@ -150,7 +154,7 @@ The output file starts with a header line `[SVP_VERSION_2]`, this is included at
 The SVP data for each location is broken down into a number of sections, the start of these sections is indicated be a single header line starting with `Section`. This section header includes the timestamp (note: Julian days is used in date component), and the latitude/longitude of the SVP data in degrees, minutes, seconds notation.
 
 
-### Trimming of SVP data
+#### Trimming of SVP data
 Raw data read from the L0 and L2 SVP files is trimmed to include the longest dive section of the depth vs speed series. This is done to remove initial bobbing that sees depth fluctuate up and down in shallow depths, it also trims the measurements recorded during ascension.
 
 Consider the following input data series.
@@ -181,24 +185,68 @@ Consider the following input data series.
 Only the section from the start to end of the longest dive will be included in the merged svp output file.
 
 
-## Running the application
+### Running raw merge process
 Merge SVP is a command line only application, there is no graphical user interface.
 A complete list of available commands and arguments can be obtained from the application with the following command.
 
-    mergesvp --help
+    mergesvp merge-raw-svp --help
 
-Merge SVP requires two input arguements; the location of the input SVP file list, and the output file to generate. These are specified by using the following arguments;
+Merge SVP raw process requires two input arguments; the location of the input SVP file list, and the output file to generate. These are specified by using the following arguments;
 - `-i path/to/input/file.csv` location of the SVP input file list
 - `-o path/to/output/file.txt` location of the merged SVP output file
 
 An example command line is shown below.
 
-    mergesvp -i /Users/lachlan/mergesvp/svp_time_location_data.csv -o /Users/lachlan/mergesvp/merged_output.txt
+    mergesvp merge-raw-svp -i /Users/lachlan/mergesvp/svp_time_location_data.csv -o /Users/lachlan/mergesvp/merged_output.txt
 
-An optional command line argument `-e` is also available. By default Merge SVP will continue if possible after encountering a non-critical error and provide a warning message. By including this argument all warnings are treated as errors and the application will exit for any issues found in input files.
+
+## Merge CARIS SVP files
+
+The merge CARIS svp process combines multiple CARIS formatted SVP files into a single CARIS SVP file. During this process any duplicate SVP profiles are removed.
+
+### Running CARIS merge process
+A complete list of available commands and arguments for the CARIS merge process can be obtained from the application with the following command.
+
+    mergesvp merge-caris-svp --help
+
+Merge SVP CARIS process requires two input arguments; the root folder location all SVP files, and the output file to generate. These are specified by using the following arguments;
+- `-i path/to/input/folder` location of the SVP files
+- `-o path/to/output/file.txt` location of the merged SVP output file
+
+An example command line is shown below.
+
+    mergesvp merge-caris-svp -i /Users/lachlan/mergesvp/ -o /Users/lachlan/mergesvp/merged_output.txt
+
+### Input file/folder structure
+The merge CARIS SVP process will find all CARIS SVP files in or under the input folder. These files musst be named `svp` (no extension).
+
+
+### Duplicate SVP removal
+This process identifies SVPs that have been duplicated by checking each value of the depth vs speed data contained within the SVP files. Timestamp and location (lat/lng) are not considered in this duplicate check.
+
+Only one copy of each unique SVP will be included in the output file.
+
+
+### Summary output data
+When execution has completed summary information is written to standard output. An example is shown below;
+
+    Reading SVP files  [####################################]  100%
+    Finding duplicate SVPs  [####################################]  100%
+    Writing merged SVP file  [####################################]  100%
+    5523 SVP files were found in folder structure
+    8961 SVPs were read from these files
+    679 Unique profiles were found
+
+The last three lines shown here tell us that a total of 5523 SVP files were found under the input folder. From these files a total of 8961 SVPs were read (CARIS SVP files can include multiple SVPs). Of these 8961 SVPs, only 679 were found to be unique (8282 will be removed as duplicates).
+
+An auxiliary output file (given a `_group_summary.csv` suffix) is generated during the execution. This includes a complete list of all SVPs discovered files, and what duplicate group they were found to be in.
 
 
 ## Warnings and errors
 Warnings are generated when Merge SVP encounters an issue, but is able to continue processing without adverse effects on output data. An example is missing metadata within one of the SVP data files, if a latitude/longitude value is missing, Merge SVP is able to continue as the information from the list csv file is used instead. Multiple warning messages may be produced.
 
 Errors are produced when Merge SVP encounters an issue it can not recover from; when this happens the application will output an error message and exit. A partial output file may have been generated, but this should be disregarded. Merge SVP will generate an error if it encounters a formatting issue related to information it requires, or if a SVP data file referenced within the csv list is not found.
+
+An optional command line argument `-e` is available that will promote warnings to errors. By default Merge SVP will continue if possible after encountering a non-critical error and provide a warning message. But, by including this argument all warnings are treated as errors and the application will exit for any issues found in input files. An example command line including this argument is shown below.
+
+    mergesvp -e merge-raw-svp -i ./test_in.csv -o ./test_out.txt
