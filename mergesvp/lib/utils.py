@@ -2,6 +2,7 @@ from functools import reduce
 import math
 from sys import flags
 from typing import List, Tuple
+from datetime import timedelta
 
 # collection of utility functions
 
@@ -74,3 +75,9 @@ def trim_to_longest_dive(
     return longest_dive
 
 
+def format_timedelta(dt: timedelta) -> str:
+    total_seconds = dt.total_seconds()
+
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f'{int(hours):02}h {int(minutes):02}m {int(seconds):02}s'

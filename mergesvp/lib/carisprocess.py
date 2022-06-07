@@ -8,7 +8,7 @@ from typing import List, TextIO, Tuple
 
 from mergesvp.lib.svpprofile import SvpProfile
 from mergesvp.lib.parsers import CarisSvpParser
-
+from mergesvp.lib.utils import format_timedelta
 
 def find_svp_files(current_path: Path) -> List[Path]:
     svp_paths = current_path.glob("**/svp")
@@ -81,7 +81,8 @@ def group_by_depth_speed(svps: List[SvpProfile]) -> List[List[SvpProfile]]:
     return svp_groups
 
 
-def write_grouping_summary_data(svp_groups: List[List[SvpProfile]], output: TextIO) -> None:
+def write_grouping_summary_data(
+    svp_groups: List[List[SvpProfile]], output: TextIO) -> None:
     """ Writes grouping and filename information to a CSV file. Includes all
     file names, and what group they belong to
     """
@@ -92,6 +93,35 @@ def write_grouping_summary_data(svp_groups: List[List[SvpProfile]], output: Text
             output.write(txt)
 
 
+def write_dt_summary_data(
+        svps: List[SvpProfile], output: TextIO) -> None:
+    """ Writes CSV file containing the filename (with timestamp suffix) and
+    the time stamp of each SVP
+    """
+    output.write("Timestamp, delta time, SVP filename and timestamp\n")
+    last_svp = None
+    for svp in svps:
+
+        fn_ts = svp.timestamp.strftime('%Y%m%d_%H%M%S')
+        svp_fn_ts = f'{svp.filename}_{fn_ts}'
+
+        dt = "n/a"
+        if last_svp is not None:
+            delta_time = svp.timestamp - last_svp.timestamp
+            dt = format_timedelta(delta_time)
+
+        ts = svp.timestamp.strftime('%Y/%m/%d %H:%M:%S')
+
+        txt = f"{ts}, {dt}, {svp_fn_ts}\n"
+        output.write(txt)
+
+        last_svp = svp
+
+
+def _sort_svp_list(svps: List[SvpProfile]) -> List[SvpProfile]:
+    return sorted(svps, key=lambda x: x.timestamp, reverse=False)
+
+
 def merge_caris_svp_process(
         path: Path,
         output: TextIO,
@@ -99,8 +129,11 @@ def merge_caris_svp_process(
     
     svp_paths = find_svp_files(path)
     svps = load_svps(svp_paths, fail_on_error)
+
+    svps_sorted = _sort_svp_list(svps)
+
     # group all the svps that have the same depth vs speed data
-    svp_groups = group_by_depth_speed(svps)
+    svp_groups = group_by_depth_speed(svps_sorted)
 
     # we can include only one of each SVP is we get the first SVP from each
     # group of SVPs. Each group of SVPs share the same depth vs speed data, but
@@ -116,6 +149,10 @@ def merge_caris_svp_process(
     summary_group_file = output.name + '_group_summary.csv'
     with open(summary_group_file, 'w') as summary_group_output:
         write_grouping_summary_data(svp_groups, summary_group_output)
+
+    summary_dt_file = output.name + '_time_summary.csv'
+    with open(summary_dt_file, 'w') as summary_group_output:
+        write_dt_summary_data(svp_no_dups, summary_group_output)
 
     # print some summary info to StdOut
     click.echo(f"{len(svp_paths)} SVP files were found in folder structure")
