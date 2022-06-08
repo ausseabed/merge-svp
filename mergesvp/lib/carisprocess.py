@@ -86,10 +86,11 @@ def write_grouping_summary_data(
     """ Writes grouping and filename information to a CSV file. Includes all
     file names, and what group they belong to
     """
-    output.write("Group number, SVP filename\n")
+    output.write("Group number, SVP filename, Timestamp\n")
     for (i, svp_group) in enumerate(svp_groups):
         for svp in svp_group:
-            txt = f"{i}, {svp.filename}\n"
+            ts = svp.timestamp.strftime('%Y/%m/%d %H:%M:%S')
+            txt = f"{i}, {svp.filename}, {ts}\n"
             output.write(txt)
 
 
