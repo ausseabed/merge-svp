@@ -222,6 +222,8 @@ The merge CARIS SVP process will find all CARIS SVP files in or under the input 
 
 
 ### Duplicate SVP removal
+Before duplicates are removed for the list of all SVPs, the list is sorted by the timestamp included in the header information of each SVP profile. The duplicate removal process is then run over this sorted list; this means that the first (based on timestamp) unique SVP from a group of duplicate SVPs will be included in the output.
+
 This process identifies SVPs that have been duplicated by checking each value of the depth vs speed data contained within the SVP files. Timestamp and location (lat/lng) are not considered in this duplicate check.
 
 Only one copy of each unique SVP will be included in the output file.
@@ -239,7 +241,7 @@ When execution has completed summary information is written to standard output. 
 
 The last three lines shown here tell us that a total of 5523 SVP files were found under the input folder. From these files a total of 8961 SVPs were read (CARIS SVP files can include multiple SVPs). Of these 8961 SVPs, only 679 were found to be unique (8282 will be removed as duplicates).
 
-An auxiliary output file (given a `_group_summary.csv` suffix) is generated during the execution. This includes a complete list of all SVPs discovered files, and what duplicate group they were found to be in.
+Two auxiliary output files are generated during execution of this process. One includes a complete list of all SVPs discovered files, and what duplicate group they were found to be in. The filename used is based on the specified output file with a `_group_summary.csv` suffix. The other auxiliary output file includes a listing of all unique SVPs, the timestamps included in their header information, and the time between subsequent SVPs.
 
 
 ## Warnings and errors
