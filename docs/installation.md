@@ -16,7 +16,7 @@ The output from the command should read "Python 3.8.13" or similar. If a command
 The latest version of Python can be downloaded from [https://www.python.org/downloads/](https://www.python.org/downloads/).
 
 
-## Download Merge SVP
+## Download and Install Merge SVP
 
 Download the latest Merge SVP release package from the GitHub repository. A *.zip file can be found under the Assets section of each release.
 https://github.com/ausseabed/merge-svp/releases
@@ -51,3 +51,13 @@ Successful installation can be confirmed by printing the command line usage with
     mergesvp --help
 
 Note: after the initial installation mergesvp can be run from any command prompt (no longer requires "Run as administrator")
+
+## Upgrading or reinstallation
+
+Merge SVP has no mechanism to automatically upgrade itself, users must undertake the following steps to upgrade to more recent versions.
+
+1. Uninstall existing version of Merge SVP by running `pip uninstall merge-svp` from the command prompt (may require admin permissions)
+2. Download and install as per [guide](#download-and-install-merge-svp)
+
+> **Warning**
+> Please ensure older versions previously downloaded are not within the same folder as the new install process is being run.
