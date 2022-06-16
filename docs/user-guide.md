@@ -218,7 +218,7 @@ An example command line is shown below.
     mergesvp merge-caris-svp -i /Users/lachlan/mergesvp/ -o /Users/lachlan/mergesvp/merged_output.txt
 
 ### Input file/folder structure
-The merge CARIS SVP process will find all CARIS SVP files in or under the input folder. These files musst be named `svp` (no extension).
+The merge CARIS SVP process will find all CARIS SVP files in or under the input folder. These files must be named `svp` (no extension).
 
 
 ### Duplicate SVP removal
