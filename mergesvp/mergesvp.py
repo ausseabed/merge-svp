@@ -1,3 +1,4 @@
+from email.policy import default
 from pathlib import Path
 import click
 import logging
@@ -53,11 +54,27 @@ def merge_raw_svp(ctx, input, output):
     type=click.File('w'),
     help="Output location for merged SVP file."
 )
+@click.option(
+    '-ff', '--folder-filter',
+    required=False,
+    default=None,
+    type=str,
+    help=(
+        "Restrict the folders that are searched for SVP files to ones that end "
+        "in a suffix specified with this argument. This will not restrict top "
+        "level folders, only immediate parents of folders containing SVP files."
+    )
+)
 @click.pass_context
-def merge_caris_svp(ctx, input, output):
+def merge_caris_svp(ctx, input, output, folder_filter):
     """ Merge multiple CARIS SVP files into a single CARIS SVP file.
     Note: duplicate profiles are removed during this process."""
-    merge_caris_svp_process(Path(input), output, ctx.obj['fail_on_error'])
+    merge_caris_svp_process(
+        Path(input),
+        output,
+        ctx.obj['fail_on_error'],
+        folder_filter
+    )
 
 
 @click.group()

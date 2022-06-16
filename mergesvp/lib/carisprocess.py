@@ -10,11 +10,27 @@ from mergesvp.lib.svpprofile import SvpProfile
 from mergesvp.lib.parsers import CarisSvpParser
 from mergesvp.lib.utils import format_timedelta
 
-def find_svp_files(current_path: Path) -> List[Path]:
+
+def _filter_folder(path: Path, filter:str) -> bool:
+    """ Checks the parent folder of the path ends with the 'filter' suffix'"""
+    parent_path = path.parent
+    return parent_path.name.endswith(filter)
+
+
+def find_svp_files(current_path: Path, folder_filter: str) -> List[Path]:
     svp_paths = current_path.glob("**/svp")
     # glob returns a generator, convert this to a list as it will allow
     # us to better display progress (we'll know its length)
-    return list(svp_paths)
+    svp_path_list =  list(svp_paths)
+
+    if folder_filter is not None:
+        svp_path_list = [
+            svp_path
+            for svp_path in svp_path_list
+            if _filter_folder(svp_path, folder_filter)
+        ]
+
+    return svp_path_list
 
 
 def load_svps(paths: List[Path], fail_on_error: bool) -> List[SvpProfile]:
@@ -126,9 +142,10 @@ def _sort_svp_list(svps: List[SvpProfile]) -> List[SvpProfile]:
 def merge_caris_svp_process(
         path: Path,
         output: TextIO,
-        fail_on_error: bool) -> None:
+        fail_on_error: bool,
+        folder_filter: str = None) -> None:
     
-    svp_paths = find_svp_files(path)
+    svp_paths = find_svp_files(path, folder_filter)
     svps = load_svps(svp_paths, fail_on_error)
 
     svps_sorted = _sort_svp_list(svps)
