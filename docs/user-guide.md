@@ -217,8 +217,37 @@ An example command line is shown below.
 
     mergesvp merge-caris-svp -i /Users/lachlan/mergesvp/ -o /Users/lachlan/mergesvp/merged_output.txt
 
+
 ### Input file/folder structure
-The merge CARIS SVP process will find all CARIS SVP files in or under the input folder. These files must be named `svp` (no extension).
+The merge CARIS SVP process will find CARIS SVP files in or under the input folder. These files must be named `svp` (no extension).
+
+
+### Filtering which SVP files are used
+In some situations, such as when different sensors are used, the user may wish to filter which SVP files are included in the process. Consider the following folder structure.
+
+    |-- TrackLines_ga-0365
+        |-- 0000_20200801_102451_FK200804_EM710
+        |   |-- Svp
+        |-- 0001_20200801_110702_FK200804_EM710
+        |   |-- Svp
+        |-- 0001_20200801_120229_FK200802_EM302_EM302
+        |   |-- Svp
+        |-- 0002_20200801_120702_FK200804_EM710
+        |   |-- Svp
+        |-- 0002_20200801_130227_FK200802_EM302_EM302
+        |   |-- Svp
+        |-- 0002_20200827_023314_FK200802_EM302
+        |   |-- Svp
+
+This dataset includes SVP files for two different sensors. The following command line could be used to filter SVPs for EM710 sensors.
+
+    mergesvp merge-caris-svp -i /Users/lachlan/mergesvp/ -o /Users/lachlan/mergesvp/merged_output.txt --folder-filter EM710
+
+Or similarly to filter for EM302 sensors.
+
+    mergesvp merge-caris-svp -i /Users/lachlan/mergesvp/ -o /Users/lachlan/mergesvp/merged_output.txt --folder-filter EM302
+
+In these examples the `--folder-filter` (or `-ff` in shorter notation) command line argument specifies a string that must be the suffix of any parent folder of an SVP file. It will not restrict the searching though higher level folders; in the above example the `TrackLines_ga-0365` folder would not be filtered as it is not an immediate parent of any SVP files. 
 
 
 ### Duplicate SVP removal
