@@ -8,7 +8,7 @@ from typing import List, TextIO, Tuple
 
 from mergesvp.lib.svpprofile import SvpProfile
 from mergesvp.lib.parsers import CarisSvpParser
-from mergesvp.lib.utils import format_timedelta
+from mergesvp.lib.utils import format_timedelta, sort_svp_list
 
 
 def _filter_folder(path: Path, filter:str) -> bool:
@@ -135,10 +135,6 @@ def write_dt_summary_data(
         last_svp = svp
 
 
-def _sort_svp_list(svps: List[SvpProfile]) -> List[SvpProfile]:
-    return sorted(svps, key=lambda x: x.timestamp, reverse=False)
-
-
 def merge_caris_svp_process(
         path: Path,
         output: TextIO,
@@ -148,7 +144,7 @@ def merge_caris_svp_process(
     svp_paths = find_svp_files(path, folder_filter)
     svps = load_svps(svp_paths, fail_on_error)
 
-    svps_sorted = _sort_svp_list(svps)
+    svps_sorted = sort_svp_list(svps)
 
     # group all the svps that have the same depth vs speed data
     svp_groups = group_by_depth_speed(svps_sorted)

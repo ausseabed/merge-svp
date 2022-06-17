@@ -4,8 +4,10 @@ from mergesvp.lib.utils import \
     decimal_to_dms, \
     dms_to_decimal, \
     _get_all_dives, \
-    trim_to_longest_dive
+    trim_to_longest_dive, \
+    sort_svp_list
 
+from tests.lib.mock_data import svp_1, svp_2, svp_3
 
 def test_dms_to_decimal():
     degrees = 12
@@ -104,3 +106,13 @@ def test_trim_to_longest_dive():
 
     longest_dive = trim_to_longest_dive(svp_data)
     assert len(longest_dive) == 5
+
+
+def test_svps_sorting():
+    svps = [svp_2, svp_3, svp_1]
+
+    sorted_svps = sort_svp_list(svps)
+
+    assert sorted_svps[0] == svp_1
+    assert sorted_svps[1] == svp_2
+    assert sorted_svps[2] == svp_3

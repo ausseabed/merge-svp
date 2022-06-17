@@ -1,10 +1,12 @@
+# collection of utility functions
 from functools import reduce
 import math
 from sys import flags
 from typing import List, Tuple
 from datetime import timedelta
 
-# collection of utility functions
+from mergesvp.lib.svpprofile import SvpProfile
+
 
 def dms_to_decimal(
         degrees: float,
@@ -81,3 +83,10 @@ def format_timedelta(dt: timedelta) -> str:
     hours, remainder = divmod(total_seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
     return f'{int(hours):02}h {int(minutes):02}m {int(seconds):02}s'
+
+
+def sort_svp_list(svps: List[SvpProfile]) -> List[SvpProfile]:
+    """ Sorts a list of SVPs based on the timestamp of each SVP. Sorted
+    earliest to latest.
+    """
+    return sorted(svps, key=lambda x: x.timestamp, reverse=False)
