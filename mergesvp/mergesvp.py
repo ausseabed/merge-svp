@@ -77,6 +77,45 @@ def merge_caris_svp(ctx, input, output, folder_filter):
     )
 
 
+@click.command()
+@click.option(
+    '-i', '--input',
+    required=True,
+    type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True),
+    help=(
+        "Path to single SVP file that includes multiple SVPs to be supplemented "
+        "with synthetic SVP profiles"
+    )
+)
+@click.option(
+    '-o', '--output',
+    type=click.File('w'),
+    help="Output location for supplemented SVP file."
+)
+@click.option(
+    '-tt', '--time-threshold',
+    required=False,
+    default=4,
+    type=float,
+    help=(
+        "The maximum time (hours) between SVPs that is allowed before synthetic "
+        "SVPs are added"
+    )
+)
+@click.pass_context
+def merge_caris_svp(ctx, input, output, time_threshold):
+    """
+    Fills the gaps in a series of SVPs where the time between two SVP
+    profiles exceeds the given threshold
+    """
+    merge_caris_svp_process(
+        Path(input),
+        output,
+        ctx.obj['fail_on_error'],
+        time_threshold
+    )
+
+
 @click.group()
 @click.option(
     '-e', '--fail-on-error',

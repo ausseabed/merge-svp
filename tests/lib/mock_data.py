@@ -17,7 +17,7 @@ svp_1 = SvpProfile(
 )
 
 svp_2 = SvpProfile(
-    timestamp=datetime(2015, 6, 1, 1, 11, 12),
+    timestamp=datetime(2015, 6, 1, 2, 11, 12),
     depth_speed=[
         (0.0, 0.0),
         (1.1, 1.1),
@@ -29,7 +29,7 @@ svp_2 = SvpProfile(
 )
 
 svp_3 = SvpProfile(
-    timestamp=datetime(2015, 6, 1, 1, 11, 13),
+    timestamp=datetime(2015, 6, 1, 2, 45, 13),
     depth_speed=[
         (0.0, 0.0),
         (1.1, 1.1),
@@ -37,5 +37,17 @@ svp_3 = SvpProfile(
         (3.3, 1.3),
         (4.4, 1.45),
         (5.5, 1.5),
+    ]
+)
+
+svp_4 = SvpProfile(
+    timestamp=datetime(2015, 6, 2, 2, 46, 13),
+    depth_speed=[
+        (0.0, 0.0),
+        (1.1, 1.9),
+        (2.2, 2.2),
+        (3.3, 2.3),
+        (4.4, 2.45),
+        (5.5, 2.5),
     ]
 )
