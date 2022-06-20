@@ -1,3 +1,4 @@
+from datetime import datetime
 import pytest
 
 from mergesvp.lib.utils import \
@@ -5,7 +6,8 @@ from mergesvp.lib.utils import \
     dms_to_decimal, \
     _get_all_dives, \
     trim_to_longest_dive, \
-    sort_svp_list
+    sort_svp_list, \
+    timedelta_to_hours
 
 from tests.lib.mock_data import svp_1, svp_2, svp_3
 
@@ -116,3 +118,15 @@ def test_svps_sorting():
     assert sorted_svps[0] == svp_1
     assert sorted_svps[1] == svp_2
     assert sorted_svps[2] == svp_3
+
+
+def test_timedelta_to_hours():
+    d1 = datetime(2022, 6, 17, 1, 30, 0)
+    d2 = datetime(2022, 6, 17, 2, 00, 0)
+    d3 = datetime(2022, 6, 18, 2, 00, 0)
+
+    dt21 = d2 - d1
+    dt31 = d3 - d1
+
+    assert timedelta_to_hours(dt21) == 0.5
+    assert timedelta_to_hours(dt31) == 24.5

@@ -90,3 +90,9 @@ def sort_svp_list(svps: List[SvpProfile]) -> List[SvpProfile]:
     earliest to latest.
     """
     return sorted(svps, key=lambda x: x.timestamp, reverse=False)
+
+
+def timedelta_to_hours(dt: timedelta) -> float:
+    """ Converts a timedelta object to a single floating point hours value"""
+    f = float(dt.days) * 24 + (dt.seconds / 60 / 60)
+    return f
