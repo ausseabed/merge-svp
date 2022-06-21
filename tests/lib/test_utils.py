@@ -7,7 +7,8 @@ from mergesvp.lib.utils import \
     _get_all_dives, \
     trim_to_longest_dive, \
     sort_svp_list, \
-    timedelta_to_hours
+    timedelta_to_hours, \
+    lerp
 
 from tests.lib.mock_data import svp_1, svp_2, svp_3
 
@@ -130,3 +131,9 @@ def test_timedelta_to_hours():
 
     assert timedelta_to_hours(dt21) == 0.5
     assert timedelta_to_hours(dt31) == 24.5
+
+
+def test_lerp():
+    assert lerp(5, 10, 0.5) == 7.5
+    assert lerp(5, 15, 0.25) == 7.5
+    assert lerp(5, 15, 0.75) == 12.5

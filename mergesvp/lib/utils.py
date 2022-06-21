@@ -96,3 +96,9 @@ def timedelta_to_hours(dt: timedelta) -> float:
     """ Converts a timedelta object to a single floating point hours value"""
     f = float(dt.days) * 24 + (dt.seconds / 60 / 60)
     return f
+
+
+def lerp(a: float, b: float, t: float) -> float:
+    """Linear interpolate between a and b, using t.
+    """
+    return (1 - t) * a + t * b
