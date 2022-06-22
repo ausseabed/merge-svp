@@ -53,6 +53,19 @@ class Trackline:
     a vessel has taken
     """
 
+    @staticmethod
+    def get_containing_trackline(
+            tracklines: List[Trackline],
+            timestamp: datetime) -> Trackline:
+        """ Gets the trackline that the timestamp falls in. If the timestamp
+        falls outside of all tracklines then None is returned.
+        """
+        for trackline in tracklines:
+            if trackline.is_in(timestamp):
+                return trackline
+        return None
+
+
     def __init__(self, line_id: str, file: Path) -> None:
         """
         Args:
