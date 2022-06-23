@@ -107,11 +107,33 @@ class SyntheticSvpProcessor:
         self.time_threshold = time_threshold
         self.generate_summary = generate_summary
         self.fail_on_error = fail_on_error
-        
+
         # list of SvpProfiles
         self.svps = []
         # list of Tracklines
         self.tracklines = []
+        # list of warning messages (str)
+        self.warnings = []
+
+
+    def _update_svp_coords(self) -> None:
+        """
+        Updates the coordinates of existing SVPs (in `self.svps`) based on the
+        trackline data. This is necessary as most SVPs do not include location
+        information.
+        """
+        for svp in self.svps:
+            trackline = Trackline.get_containing_trackline(
+                self.tracklines,
+                svp.timestamp
+            )
+            if trackline is None:
+                msg = (f"Unable to identify trackline for SVP at {svp.timestamp}")
+                self.warnings.append(msg)
+                continue
+            lerp_point = trackline.get_lerp_point(svp.timestamp)
+            svp.latitude = lerp_point.latitude
+            svp.longitude = lerp_point.longitude
 
 
     def _get_supplement_coords(
@@ -189,6 +211,9 @@ class SyntheticSvpProcessor:
         # done, but users may include unsorted files that haven't been generated
         # by merge svp
         self.svps = sort_svp_list(svps)
+
+        # update location information for existing SVPs
+        self._update_svp_coords()
 
         # load the tracklines data. Location information is sourced exclusively
         # from this file. SVP files can store location data, but it is typically
