@@ -170,6 +170,15 @@ class SyntheticSvpProcessor:
                 self.tracklines,
                 current_time
             )
+
+            if trackline is None:
+                self.warnings.append(
+                    f"Could not identify trackline that covers time {current_time} "
+                    "this SVP was skipped"
+                )
+                current_time += dt
+                continue
+
             # get the interpolated location of this time based on the trackline
             # data
             lerp_point = trackline.get_lerp_point(current_time)
@@ -230,7 +239,7 @@ class SyntheticSvpProcessor:
             tl_geojson = Path(self.output.name + '_tracklines.geojson')
             tracklines_to_geojson_file(self.tracklines, tl_geojson)
 
-        # no fill gaps in between the existing SVPs
+        # now fill gaps in between the existing SVPs
         self._fill_gaps()
 
 
