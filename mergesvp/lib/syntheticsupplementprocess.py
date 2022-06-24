@@ -10,7 +10,7 @@ import math
 from pathlib import Path
 from typing import List, TextIO, Tuple
 
-from mergesvp.lib.svpprofile import SvpProfile
+from mergesvp.lib.svpprofile import SvpProfile, svps_to_geojson_file
 from mergesvp.lib.parsers import CarisSvpParser
 from mergesvp.lib.tracklines import \
     Trackline, \
@@ -227,9 +227,6 @@ class SyntheticSvpProcessor:
         # by merge svp
         self.svps = sort_svp_list(svps)
 
-        # update location information for existing SVPs
-        self._update_svp_coords()
-
         # load the tracklines data. Location information is sourced exclusively
         # from this file. SVP files can store location data, but it is typically
         # not included.
@@ -239,8 +236,20 @@ class SyntheticSvpProcessor:
             tl_geojson = Path(self.output.name + '_tracklines.geojson')
             tracklines_to_geojson_file(self.tracklines, tl_geojson)
 
+        # update location information for existing SVPs
+        self._update_svp_coords()
+
+        # generate a geojson summary of all the existing SVPs
+        if self.generate_summary:
+            svp_orig_geojson = Path(self.output.name + '_src_svps.geojson')
+            svps_to_geojson_file(self.svps, svp_orig_geojson)
+
         # now fill gaps in between the existing SVPs
         self._fill_gaps()
+
+        if self.generate_summary:
+            svp_synth_geojson = Path(self.output.name + '_synth_svps.geojson')
+            svps_to_geojson_file(self.svps, svp_synth_geojson)
 
 
 def synthetic_supplement_svp_process(
