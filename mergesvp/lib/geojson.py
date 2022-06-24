@@ -15,6 +15,24 @@ class GeojsonFeature:
         self.properties = {}
 
 
+class GeojsonPointFeature(GeojsonFeature):
+
+    def __init__(self) -> None:
+        super().__init__()
+        # list of lists. Each inner list is a longitude/latitude coordinate.
+        self.point = []
+
+    def to_geojson(self) -> Dict:
+        return {
+            "type": "Feature",
+            "properties": self.properties,
+            "geometry": {
+                "type": "Point",
+                "coordinates": self.point
+            }
+        }
+
+
 class GeojsonLineStringFeature(GeojsonFeature):
 
     def __init__(self) -> None:
@@ -23,10 +41,6 @@ class GeojsonLineStringFeature(GeojsonFeature):
         self.points = []
     
     def to_geojson(self) -> Dict:
-        features = [
-            []
-            for point in self.points
-        ]
         return {
             "type": "Feature",
             "properties": self.properties,
