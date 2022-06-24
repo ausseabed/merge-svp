@@ -251,6 +251,12 @@ class SyntheticSvpProcessor:
             svp_synth_geojson = Path(self.output.name + '_synth_svps.geojson')
             svps_to_geojson_file(self.svps, svp_synth_geojson)
 
+        # now write output file
+        writer = CarisSvpParser()
+        writer.show_progress = True
+        output_path = Path(os.path.realpath(self.output.name))
+        writer.write_many(output_path, self.svps)
+
 
 def synthetic_supplement_svp_process(
         input: Path,
