@@ -12,8 +12,12 @@ from typing import List, TextIO, Tuple
 
 from mergesvp.lib.svpprofile import SvpProfile
 from mergesvp.lib.parsers import CarisSvpParser
-from mergesvp.lib.tracklines import Trackline, TracklinesParser
+from mergesvp.lib.tracklines import \
+    Trackline, \
+    TracklinesParser, \
+    tracklines_to_geojson_file
 from mergesvp.lib.utils import sort_svp_list, timedelta_to_hours
+
 
 def load_svps(path: Path, fail_on_error: bool) -> List[SvpProfile]:
     """ Loads multiple SVPs from each of the paths provided, returns them all
@@ -105,6 +109,8 @@ class SyntheticSvpProcessor:
         self.tracklines_input = tracklines_input
         self.output = output
         self.time_threshold = time_threshold
+        # should the process generate some spatial summary files that
+        # show what SVPs were generated
         self.generate_summary = generate_summary
         self.fail_on_error = fail_on_error
 
@@ -206,7 +212,7 @@ class SyntheticSvpProcessor:
 
 
     def process(self):
-        svps = load_svps(self.input)
+        svps = load_svps(self.input, self.fail_on_error)
         # sort the list of SVPs by timestamp. In most cases this will already be
         # done, but users may include unsorted files that haven't been generated
         # by merge svp
@@ -220,6 +226,9 @@ class SyntheticSvpProcessor:
         # not included.
         parser = TracklinesParser()
         self.tracklines = parser.read(self.tracklines_input)
+        if self.generate_summary:
+            tl_geojson = Path(self.output.name + '_tracklines.geojson')
+            tracklines_to_geojson_file(self.tracklines, tl_geojson)
 
         # no fill gaps in between the existing SVPs
         self._fill_gaps()

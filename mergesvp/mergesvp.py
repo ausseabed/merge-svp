@@ -5,6 +5,8 @@ import logging
 
 from mergesvp.lib.rawprocess import merge_raw_svp_process
 from mergesvp.lib.carisprocess import merge_caris_svp_process
+from mergesvp.lib.syntheticsupplementprocess import \
+    synthetic_supplement_svp_process
 
 
 def configure_logger():
@@ -88,6 +90,18 @@ def merge_caris_svp(ctx, input, output, folder_filter):
     )
 )
 @click.option(
+    '-t', '--tracklines',
+    required=True,
+    type=click.Path(
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        resolve_path=True),
+    help=(
+        "Path to CSV formatted tracklines file"
+    )
+)
+@click.option(
     '-o', '--output',
     type=click.File('w'),
     help="Output location for supplemented SVP file."
@@ -102,17 +116,27 @@ def merge_caris_svp(ctx, input, output, folder_filter):
         "SVPs are added"
     )
 )
+@click.option(
+    '-ns', '--no-summary',
+    is_flag=True,
+    help=(
+        "Disable generation of summary files including tracklines and "
+        "locations of SVPs"
+    )
+)
 @click.pass_context
-def merge_caris_svp(ctx, input, output, time_threshold):
+def supplement_svp(ctx, input, tracklines, output, time_threshold, no_summary):
     """
     Fills the gaps in a series of SVPs where the time between two SVP
     profiles exceeds the given threshold
     """
-    merge_caris_svp_process(
-        Path(input),
-        output,
-        ctx.obj['fail_on_error'],
-        time_threshold
+    synthetic_supplement_svp_process(
+        input=Path(input),
+        tracklines=Path(tracklines),
+        output=output,
+        time_threshold=time_threshold,
+        fail_on_error=ctx.obj['fail_on_error'],
+        generate_summary= not no_summary
     )
 
 
@@ -133,6 +157,7 @@ def cli(ctx, fail_on_error):
 
 cli.add_command(merge_raw_svp)
 cli.add_command(merge_caris_svp)
+cli.add_command(supplement_svp)
 
 
 def main():

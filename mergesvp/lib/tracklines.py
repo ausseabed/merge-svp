@@ -4,8 +4,11 @@ of trackline data (positions of the ship undertaking the survey).
 """
 from __future__ import annotations
 from datetime import datetime
+from operator import le
 from pathlib import Path
+import json
 from typing import List, Tuple
+from mergesvp.lib.geojson import GeojsonFeature, GeojsonLineStringFeature, GeojsonRoot
 
 from mergesvp.lib.utils import lerp, timedelta_to_hours
 
@@ -119,6 +122,20 @@ class Trackline:
         return lerp_pt
 
 
+    def to_geojson_object(self) -> GeojsonFeature:
+        """ Generates a GeojsonFeature that represents this trackline
+        """
+        feature = GeojsonLineStringFeature()
+        feature.properties['line_id'] = self.line_id
+        geojson_points = [
+            [tl_pt.longitude, tl_pt.latitude]
+            for tl_pt in self.points
+        ]
+
+        feature.points = geojson_points
+        return feature
+
+
 class TracklinesParser:
     """ Reads CSV formatted tracklines data into Tracklines objects 
     """
@@ -186,7 +203,29 @@ class TracklinesParser:
         with file.open('r') as f:
             # skip first line as it is just the header
             f.readline()
-            lines = file.read().splitlines()
+            lines = f.read().splitlines()
             self._process_lines(lines)
 
+        return self.tracklines
 
+
+def tracklines_to_geojson_file(
+        tracklines: List[Trackline],
+        output_file: Path) -> None:
+    """ Writes a list of tracklines to a geojson file
+    """
+    geojson_object = GeojsonRoot()
+    for trackline in tracklines:
+        geojson_object.feature_collection.add_feature(
+            trackline.to_geojson_object()
+        )
+
+    geojson = geojson_object.to_geojson()
+
+    with output_file.open('w') as f:
+        f.write(
+            json.dumps(
+                geojson,
+                indent=2
+            )
+        )
