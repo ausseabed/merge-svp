@@ -6,3 +6,6 @@ class SvpMissingDataException(Exception):
 
 class ParserNotImplemeneted(Exception):
     pass
+
+class SyntheticSvpGenerationException(Exception):
+    pass

@@ -17,6 +17,7 @@ from mergesvp.lib.tracklines import \
     TracklinesParser, \
     tracklines_to_geojson_file
 from mergesvp.lib.utils import sort_svp_list, timedelta_to_hours
+from mergesvp.lib.ssminterface import get_ssm_synthetic_svp
 
 
 def load_svps(path: Path, fail_on_error: bool) -> List[SvpProfile]:
@@ -74,6 +75,13 @@ def get_synthetic_svp(
     synthetic_svp.timestamp = time
     synthetic_svp.latitude = latitude
     synthetic_svp.longitude = longitude
+
+    svp_data = get_ssm_synthetic_svp(
+        latitude=latitude,
+        longitude=longitude,
+        timestamp=time
+    )
+    synthetic_svp.depth_speed = svp_data
 
     return synthetic_svp
 
