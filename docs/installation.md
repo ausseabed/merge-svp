@@ -16,7 +16,45 @@ The output from the command should read "Python 3.8.13" or similar. If a command
 The latest version of Python can be downloaded from [https://www.python.org/downloads/](https://www.python.org/downloads/).
 
 
-## Download and Install Merge SVP
+## Anaconda
+
+Anaconda (Conda for short) is a package and environment manager for Python. While its use is not necessary for Merge SVP, the installation of several dependencies is easier through Conda. The following installation process assumes Conda is being used.
+
+The latest version of Conda can be downloaded from the following link:
+[https://docs.conda.io/en/latest/miniconda.html](https://docs.conda.io/en/latest/miniconda.html)
+
+
+## Installation steps
+
+Open a Anaconda Prompt. If Conda was installed on Windows a "Anaconda Prompt (Minicondaa3)" item should be available from the start menu.
+
+In the Conda command prompt type the following command to create a new Conda environment
+
+    conda create -y -n mergesvp python=3.9
+
+Then activate the Conda environment that has just been created.
+
+    conda activate mergesvp
+
+Now install dependencies needed by Sound Speed Manager into the mergesvp conda environment.
+
+    pip install hyo2.abc --no-dependencies
+    pip install netCDF4
+    pip install requests
+    pip install pyproj
+    pip install psutil
+    pip install appdirs
+    pip install scipy
+
+    conda install -y gdal
+    conda install -y gsw
+
+Install Sound Speed Manager
+
+    pip install git+https://github.com/hydroffice/hyo2_soundspeed.git --no-dependencies
+
+
+### Download and Install Merge SVP
 
 Download the latest Merge SVP release package from the GitHub repository. A *.zip file can be found under the Assets section of each release.
 https://github.com/ausseabed/merge-svp/releases
