@@ -30,6 +30,12 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Install SSM dependencies
       run: |
+        pip install netCDF4
+        pip install requests
+        pip install pyproj
+        pip install psutil
+        pip install appdirs
+        pip install scipy
         pip install hyo2.abc --no-dependencies
         pip install git+https://github.com/hydroffice/hyo2_soundspeed.git --no-dependencies
     - name: Lint with flake8
