@@ -45,7 +45,8 @@ def get_ssm_atlas() -> AbstractAtlas:
     )
 
     if not atlas.is_present():
-        logging.info("WOA data not found locally, download will commence")
+        logging.warning("WOA data not found locally, download will commence")
+        logging.warning(f"WOA data folder: {atlas.data_folder}")
         atlas.data_folder = os.path.join(atlas.data_folder, 'tmp')
         os.makedirs(atlas.data_folder)
         atlas.download_db()
