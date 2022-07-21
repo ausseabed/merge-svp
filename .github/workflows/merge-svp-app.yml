@@ -39,7 +39,6 @@ jobs:
         sudo apt-add-repository ppa:ubuntugis/ubuntugis-unstable
         sudo apt-get update
         sudo apt-get install gdal-bin libgdal-dev
-        pip install GDAL
         pip install hyo2.abc --no-dependencies
         pip install git+https://github.com/hydroffice/hyo2_soundspeed.git --no-dependencies
     - name: Lint with flake8
