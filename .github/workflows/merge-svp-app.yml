@@ -33,6 +33,7 @@ jobs:
         sudo apt-add-repository ppa:ubuntugis/ubuntugis-unstable
         sudo apt-get update
         sudo apt-get install gdal-bin libgdal-dev python3-gdal
+        pip install GDAL==3.4
         pip install netCDF4
         pip install requests
         pip install pyproj
