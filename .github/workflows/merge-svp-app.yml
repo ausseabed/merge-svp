@@ -40,6 +40,7 @@ jobs:
         pip install psutil
         pip install appdirs
         pip install scipy
+        pip install gsw
         pip install hyo2.abc --no-dependencies
         pip install git+https://github.com/hydroffice/hyo2_soundspeed.git --no-dependencies
     - name: Lint with flake8
