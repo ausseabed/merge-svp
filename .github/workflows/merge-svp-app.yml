@@ -30,9 +30,12 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Install SSM dependencies
       run: |
-        sudo apt-add-repository ppa:ubuntugis/ubuntugis-unstable
+        sudo add-apt-repository ppa:ubuntugis/ppa
         sudo apt-get update
-        sudo apt-get install gdal-bin libgdal-dev python3-gdal
+        sudo apt-get install gdal-bin libgdal-dev
+        ogrinfo --version
+        export CPLUS_INCLUDE_PATH=/usr/include/gdal
+        export C_INCLUDE_PATH=/usr/include/gdal
         pip install GDAL==3.4
         pip install netCDF4
         pip install requests
