@@ -38,7 +38,6 @@ jobs:
         export C_INCLUDE_PATH=/usr/include/gdal
         export GDAL_DATA=/usr/share/gdal/
         ls -al /usr/share/gdal/
-        ls -al /usr/local/share/gdal/
         pip install GDAL==3.3.2
         pip install netCDF4
         pip install requests
