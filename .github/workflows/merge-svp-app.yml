@@ -39,7 +39,7 @@ jobs:
         export GDAL_DATA=/usr/share/gdal/
         ls -al /usr/share/gdal/
         pip install GDAL==3.3.2
-        find / -name "gcs.csv"
+        find / -name "epsg.wkt"
         pip install netCDF4
         pip install requests
         pip install pyproj
