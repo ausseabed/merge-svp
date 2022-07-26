@@ -16,7 +16,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    env:
+      GDAL_DATA: /usr/share/gdal/
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.9
@@ -36,10 +37,7 @@ jobs:
         ogrinfo --version
         export CPLUS_INCLUDE_PATH=/usr/include/gdal
         export C_INCLUDE_PATH=/usr/include/gdal
-        export GDAL_DATA=/usr/share/gdal/
-        ls -al /usr/share/gdal/
         pip install GDAL==3.3.2
-        find / -name "epsg.wkt"
         pip install netCDF4
         pip install requests
         pip install pyproj
