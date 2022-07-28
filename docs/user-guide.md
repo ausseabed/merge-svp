@@ -291,7 +291,7 @@ Merge SVP supplement process requires several arguments, these are;
 
 An example command line is shown below.
 
-    mergesvp merge-caris-svp -i /Users/lachlan/mergesvp/merged_output.txt -t /Users/lachlan/mergesvp/tracklines.csv -o /Users/lachlan/mergesvp/output.txt
+    mergesvp supplement-svp -i /Users/lachlan/mergesvp/merged_output.txt -t /Users/lachlan/mergesvp/tracklines.csv -o /Users/lachlan/mergesvp/output.txt
 
 
 ### Tracklines file
