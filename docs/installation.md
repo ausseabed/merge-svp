@@ -38,6 +38,8 @@ Then activate the Conda environment that has just been created.
 
 Now install dependencies needed by Sound Speed Manager into the mergesvp conda environment.
 
+Note: during the installation of the following dependencies several warning messages may be presented stating that some dependencies are missing. These can be ignored as they related to components of Sound Speed Manager that are not used by Merge SVP.
+
     pip install hyo2.abc --no-dependencies
     pip install netCDF4
     pip install requests
@@ -46,8 +48,8 @@ Now install dependencies needed by Sound Speed Manager into the mergesvp conda e
     pip install appdirs
     pip install scipy
 
-    conda install -y gdal
-    conda install -y gsw
+    conda install -y -c conda-forge gdal
+    conda install -y -c conda-forge gsw
 
 Install Sound Speed Manager
 
