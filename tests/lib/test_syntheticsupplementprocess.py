@@ -5,7 +5,7 @@ from mergesvp.lib.tracklines import Trackline, TracklinePoint
 from tests.lib.mock_data import svp_1, svp_2, svp_3, svp_4
 from mergesvp.lib.syntheticsupplementprocess import \
     find_gaps, \
-    SyntheticSvpProcessor, \
+    SyntheticSupplementSvpProcessor, \
     calc_interval
 
 
@@ -28,7 +28,7 @@ def test_find_gaps():
 
 
 def test_get_supplement_coords():
-    processor = SyntheticSvpProcessor(None, None, None)
+    processor = SyntheticSupplementSvpProcessor(None, None, None)
 
     # need to provide some rubbish trackline data so that the interpolation
     # process doesn't fail
@@ -71,7 +71,7 @@ def test_calc_interval():
 #     svp2 = SvpProfile(None, t2)
 #     svps = [svp1, svp2]
 
-#     processor = SyntheticSvpProcessor(None, None, None)
+#     processor = SyntheticSupplementSvpProcessor(None, None, None)
 #     processor.tracklines = [trackline]
 #     processor.svps = svps
 #     processor.time_threshold = 2

@@ -100,7 +100,7 @@ def calc_interval(
     return dt_hours / steps
 
 
-class SyntheticSvpProcessor:
+class SyntheticSupplementSvpProcessor:
     """ Performs the several steps required to generate a set of SVP profiles
     that may include some synthetic data to fill gaps
     """
@@ -295,7 +295,7 @@ def synthetic_supplement_svp_process(
         Exception: Raises an exception.
 
     """
-    processor = SyntheticSvpProcessor(
+    processor = SyntheticSupplementSvpProcessor(
         input=input,
         tracklines_input=tracklines,
         output=output,
