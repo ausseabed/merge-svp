@@ -69,6 +69,23 @@ class Trackline:
         return None
 
 
+    @staticmethod
+    def merge_tracklines(tracklines: List[Trackline]) -> Trackline:
+        """ Merges multiple tracklines into a single trackline
+        """
+        ids = [str(tl.line_id) for tl in tracklines]
+        ids_str = ','.join(ids)
+        merged_trackline = Trackline(line_id=ids_str, file=None)
+
+        pts = []
+        for tl in tracklines:
+            pts.extend(tl.points)
+
+        merged_trackline.points = pts
+
+        return merged_trackline
+
+
     def __init__(self, line_id: str, file: Path) -> None:
         """
         Args:
