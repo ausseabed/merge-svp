@@ -7,6 +7,8 @@ from mergesvp.lib.rawprocess import merge_raw_svp_process
 from mergesvp.lib.carisprocess import merge_caris_svp_process
 from mergesvp.lib.syntheticsupplementprocess import \
     synthetic_supplement_svp_process
+from mergesvp.lib.syntheticprocess import \
+    synthetic_svp_process
 
 
 def configure_logger():
@@ -140,6 +142,56 @@ def supplement_svp(ctx, input, tracklines, output, time_threshold, no_summary):
     )
 
 
+@click.command()
+@click.option(
+    '-t', '--tracklines',
+    required=True,
+    type=click.Path(
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        resolve_path=True),
+    help=(
+        "Path to CSV formatted tracklines file"
+    )
+)
+@click.option(
+    '-o', '--output',
+    type=click.File('w'),
+    help="Output location for synthetic SVP file."
+)
+@click.option(
+    '-tg', '--time-gap',
+    required=False,
+    default=4,
+    type=float,
+    help=(
+        "The time (hours) between synthetic SVPs that will be generated"
+    )
+)
+@click.option(
+    '-ns', '--no-summary',
+    is_flag=True,
+    help=(
+        "Disable generation of summary files including tracklines and "
+        "locations of SVPs"
+    )
+)
+@click.pass_context
+def synthetic_svp(ctx, tracklines, output, time_gap, no_summary):
+    """
+    Generates a series of synthetic SVPs based on a tracklines path and time
+    gap.
+    """
+    synthetic_svp_process(
+        tracklines=Path(tracklines),
+        output=output,
+        time_gap=time_gap,
+        fail_on_error=ctx.obj['fail_on_error'],
+        generate_summary=not no_summary
+    )
+
+
 @click.group()
 @click.option(
     '-e', '--fail-on-error',
@@ -158,6 +210,7 @@ def cli(ctx, fail_on_error):
 cli.add_command(merge_raw_svp)
 cli.add_command(merge_caris_svp)
 cli.add_command(supplement_svp)
+cli.add_command(synthetic_svp)
 
 
 def main():
