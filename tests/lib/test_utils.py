@@ -133,6 +133,17 @@ def test_timedelta_to_hours():
     assert timedelta_to_hours(dt31) == 24.5
 
 
+def test_timedelta_to_hours_microseconds():
+    # big was founf whereby timedelta_to_hours would return 0
+    # if two datetimes differed in microseconds only
+    d1 = datetime(2022, 6, 17, 1, 0, 0, 0)
+    d2 = datetime(2022, 6, 17, 1, 0, 0, 10)
+
+    dt21 = d2 - d1
+
+    assert timedelta_to_hours(dt21) != 0.0
+
+
 def test_lerp():
     assert lerp(5, 10, 0.5) == 7.5
     assert lerp(5, 15, 0.25) == 7.5

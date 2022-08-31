@@ -94,7 +94,9 @@ def sort_svp_list(svps: List[SvpProfile]) -> List[SvpProfile]:
 
 def timedelta_to_hours(dt: timedelta) -> float:
     """ Converts a timedelta object to a single floating point hours value"""
-    f = float(dt.days) * 24 + (dt.seconds / 60 / 60)
+    f = float(dt.days) * 24 + \
+        (dt.seconds / 60 / 60) + \
+        (dt.microseconds / 60 / 60 / 1000)
     return f
 
 
