@@ -196,4 +196,40 @@ def test_trackline_merge():
     assert len(merged.points) == 6
     assert merged.points[0] == tl1_pt1
     assert merged.points[5] == tl2_pt3
-    
+
+
+def test_trackline_filter_duplicates():
+
+    tl1_pt1 = TracklinePoint(
+        datetime(2000, 1, 1, 12, 0, 0),
+        20,
+        30,
+        200
+    )
+    tl1_pt2 = TracklinePoint(
+        datetime(2000, 1, 2, 12, 0, 0),
+        60,
+        10,
+        210
+    )
+    tl1_pt2_dup = TracklinePoint(
+        datetime(2000, 1, 2, 12, 0, 0),
+        6110,
+        1110,
+        21110
+    )
+    tl1_pt3 = TracklinePoint(
+        datetime(2000, 1, 3, 12, 0, 0),
+        60,
+        30,
+        220
+    )
+    trackline1 = Trackline(None, None)
+    trackline1.points = [tl1_pt1, tl1_pt2, tl1_pt2_dup, tl1_pt3]
+
+
+    no_dups = Trackline.filter_duplicate_points(trackline1)
+
+    assert len(no_dups.points) == 3
+    assert no_dups.points[0] == tl1_pt1
+    assert no_dups.points[2] == tl1_pt3

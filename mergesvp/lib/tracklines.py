@@ -86,6 +86,32 @@ class Trackline:
         return merged_trackline
 
 
+    @staticmethod
+    def filter_duplicate_points(trackline: Trackline) -> Trackline:
+        """ Removes all duplicate points (points that have the same 
+        timestamp) from the trackline. Operates on the given tracklines
+        object.
+        """
+        filtered_points = []
+        last_point = None
+        for point in trackline.points:
+            if last_point is None:
+                # first point
+                filtered_points.append(point)
+            elif last_point.timestamp != point.timestamp:
+                # not a duplicate if they dont have the same timestamp
+                filtered_points.append(point)
+            else:
+                # the it's a duplicate point, so skip it
+                pass
+                # print(f"dup pt at {str(point.timestamp)}")
+            last_point = point
+
+        trackline.points = filtered_points
+
+        return trackline
+
+
     def __init__(self, line_id: str, file: Path) -> None:
         """
         Args:
