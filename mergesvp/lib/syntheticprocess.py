@@ -2,6 +2,9 @@
 data
 """
 
+import click
+import os
+import time
 from pathlib import Path
 from typing import TextIO, List, Tuple
 from datetime import datetime, timedelta
@@ -12,6 +15,32 @@ from mergesvp.lib.tracklines import \
     Trackline, \
     TracklinesParser, \
     tracklines_to_geojson_file
+from mergesvp.lib.ssminterface import get_ssm_synthetic_svp
+
+
+def get_synthetic_svp(
+        time: datetime,
+        trackline: Trackline) -> SvpProfile:
+    """ Generates a synthetic SVP for the given time based on the trackline
+    data.
+    """
+    # get the interpolated location of this time based on the trackline
+    # data
+    lerp_point = trackline.get_lerp_point(time)
+
+    synthetic_svp = SvpProfile()
+    synthetic_svp.timestamp = time
+    synthetic_svp.latitude = lerp_point.latitude
+    synthetic_svp.longitude = lerp_point.longitude
+
+    svp_data = get_ssm_synthetic_svp(
+        latitude=lerp_point.latitude,
+        longitude=lerp_point.longitude,
+        timestamp=time
+    )
+    synthetic_svp.depth_speed = svp_data
+
+    return synthetic_svp
 
 
 class SyntheticSvpProcessor:
@@ -90,6 +119,7 @@ class SyntheticSvpProcessor:
 
         return coords_list
 
+
     def _fill_gap(self, svp1: SvpProfile, svp2: SvpProfile, dt: float) -> None:
         """ Fills the gap between the two SVPs with synthetic data at
         locations determined by interpolating the trackline data. New
@@ -158,14 +188,20 @@ class SyntheticSvpProcessor:
         # trackline
         self.trackline = Trackline.merge_tracklines(tracklines)
 
+        # remove points on the trackline that have the same date and time, this
+        # breaks the interpolation process when calculating location.
+        self.trackline = Trackline.filter_duplicate_points(self.trackline)
+
         # check trackline points are in the right order
         self._validate_trackline()
 
         svp_times = self._get_svp_times()
 
-
-        # now fill gaps in between the existing SVPs
-        self._fill_gaps()
+        with click.progressbar(svp_times, label="Generating synthetic SVPs") as svp_ts:
+            self.svps = [
+                get_synthetic_svp(svp_time, self.trackline)
+                for svp_time in svp_ts
+            ]
 
         if self.generate_summary:
             svp_synth_geojson = Path(self.output.name + '_synth_svps.geojson')
@@ -193,7 +229,7 @@ def synthetic_svp_process(
         tracklines: Path to CSV file including trackline data
         output: CARIS SVP output with supplemented synthetic SVPs
         generate_summary: generate a summary geojson file that includes
-            locations of synthetic SVN data
+            locations of synthetic SVP data
         fail_on_error: escalates any warnings that occur to exceptions
         time_gap: time between each synthetic SVP profile
 
@@ -203,4 +239,11 @@ def synthetic_svp_process(
     Raises:
         Exception: Raises an exception.
     """
-    pass
+    processor = SyntheticSvpProcessor(
+        tracklines_input=tracklines,
+        output=output,
+        time_gap=time_gap,
+        generate_summary=generate_summary,
+        fail_on_error=fail_on_error
+    )
+    processor.process()
