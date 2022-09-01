@@ -35,10 +35,18 @@ class Proj:
         self.progress = CliProgress()
 
 
+atlas_singleton = None
+
 def get_ssm_atlas() -> AbstractAtlas:
     """ Returns an atlas object that can be used to generate synthetic
     velocity profiles.
     """
+    # use a singleton tto support reusing the same atlas, skipping any
+    # initialisation that it may require.
+    global atlas_singleton
+    if atlas_singleton is not None:
+        return atlas_singleton
+
     atlas = Woa18(
         data_folder=get_data_folder(),
         prj=Proj()
@@ -52,7 +60,9 @@ def get_ssm_atlas() -> AbstractAtlas:
         atlas.download_db()
         atlas.data_folder = get_data_folder()
 
-    return atlas
+    atlas_singleton = atlas
+
+    return atlas_singleton
 
 
 def get_ssm_synthetic_svp(
