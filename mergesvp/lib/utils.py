@@ -8,6 +8,20 @@ from datetime import timedelta
 from mergesvp.lib.svpprofile import SvpProfile
 
 
+def dateformat_to_pythondateformat(date_format: str) -> str:
+    """ converts the date format provided as command line input (eg; dmy)
+    into an actual python string representation of date formats (eg; '%m/%d/%y')
+    """
+    if date_format.lower() == 'dmy':
+        return r'%d/%m/%y'
+    elif date_format.lower() == 'mdy':
+        return r'%m/%d/%y'
+    elif date_format.lower() == 'ymd':
+        return r'%y/%m/%d'
+    else:
+        raise RuntimeError("Bad date format. must be dmy, mdy, or ymd")
+
+
 def dms_to_decimal(
         degrees: float,
         minutes: float = 0,

@@ -9,7 +9,7 @@ from mergesvp.lib.syntheticsupplementprocess import \
     synthetic_supplement_svp_process
 from mergesvp.lib.syntheticprocess import \
     synthetic_svp_process
-
+from mergesvp.lib.utils import dateformat_to_pythondateformat
 
 def configure_logger():
     logging.basicConfig(level="DEBUG")
@@ -126,8 +126,21 @@ def merge_caris_svp(ctx, input, output, folder_filter):
         "locations of SVPs"
     )
 )
+@click.option(
+    '-df', '--date-format',
+    required=False,
+    default='dmy',
+    type=click.Choice(['dmy', 'mdy', 'ymd']),
+    help=(
+        "Date format used by the tracklines input file. Options are "
+        "dmy (day/month/year), mdy (month/day/year), and ymd (year/month/day). "
+        "Defaults to dmy"
+    )
+)
 @click.pass_context
-def supplement_svp(ctx, input, tracklines, output, time_threshold, no_summary):
+def supplement_svp(
+        ctx, input, tracklines, output, time_threshold, no_summary,
+        date_format):
     """
     Fills the gaps in a series of SVPs where the time between two SVP
     profiles exceeds the given threshold
@@ -138,7 +151,8 @@ def supplement_svp(ctx, input, tracklines, output, time_threshold, no_summary):
         output=output,
         time_threshold=time_threshold,
         fail_on_error=ctx.obj['fail_on_error'],
-        generate_summary= not no_summary
+        generate_summary= not no_summary,
+        date_format=dateformat_to_pythondateformat(date_format)
     )
 
 
@@ -177,8 +191,19 @@ def supplement_svp(ctx, input, tracklines, output, time_threshold, no_summary):
         "locations of SVPs"
     )
 )
+@click.option(
+    '-df', '--date-format',
+    required=False,
+    default='dmy',
+    type=click.Choice(['dmy', 'mdy', 'ymd']),
+    help=(
+        "Date format used by the tracklines input file. Options are "
+        "dmy (day/month/year), mdy (month/day/year), and ymd (year/month/day). "
+        "Defaults to dmy"
+    )
+)
 @click.pass_context
-def synthetic_svp(ctx, tracklines, output, time_gap, no_summary):
+def synthetic_svp(ctx, tracklines, output, time_gap, no_summary, date_format):
     """
     Generates a series of synthetic SVPs based on a tracklines path and time
     gap.
@@ -188,7 +213,8 @@ def synthetic_svp(ctx, tracklines, output, time_gap, no_summary):
         output=output,
         time_gap=time_gap,
         fail_on_error=ctx.obj['fail_on_error'],
-        generate_summary=not no_summary
+        generate_summary=not no_summary,
+        date_format=dateformat_to_pythondateformat(date_format)
     )
 
 

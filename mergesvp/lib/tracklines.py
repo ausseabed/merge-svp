@@ -189,6 +189,7 @@ class TracklinesParser:
         # each file may contain multiple tracklines, this variable is the 
         # trackline that is currently being parsed.
         self._current_trackline = None
+        self.date_format = r'%d/%m/%y'
 
 
     def _process_line(self, line: str) -> Tuple[str, TracklinePoint]:
@@ -204,7 +205,7 @@ class TracklinesParser:
         line_bits = line.split(',')
         # merge date and time components so we can parse them together
         date_str = line_bits[0] + ' ' + line_bits[1]
-        date_format = r'%m/%d/%y %H:%M:%S.%f'  # Note: US date notation
+        date_format = self.date_format + r' %H:%M:%S.%f'
         
         tl_id = line_bits[2]
         pt = TracklinePoint(

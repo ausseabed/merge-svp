@@ -11,6 +11,7 @@ def test_parse_line():
     line = "8/1/20,10:24:52.562,0000_20200801_102451_FK200804_EM710,146.1588473,-16.7456360,58.726"
 
     parser = TracklinesParser()
+    parser.date_format = r'%m/%d/%y'
     tl_id, tl_pt = parser._process_line(line)
 
     assert tl_id == '0000_20200801_102451_FK200804_EM710'
@@ -40,6 +41,7 @@ def test_parse_lines():
     ]
 
     parser = TracklinesParser()
+    parser.date_format = r'%m/%d/%y'
     parser._process_lines(lines)
 
     tracklines = parser.tracklines
@@ -65,6 +67,7 @@ def test_trackline_is_in():
         "8/27/20,22:04:36.819,0493_20200827_223127_FK200804_EM710,153.5228475,-22.1083012,372.499",
     ]
     parser = TracklinesParser()
+    parser.date_format = r'%m/%d/%y'
     parser._process_lines(lines)
     trackline = parser.tracklines[0]
 

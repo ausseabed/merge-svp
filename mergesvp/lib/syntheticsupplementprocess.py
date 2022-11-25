@@ -112,7 +112,8 @@ class SyntheticSupplementSvpProcessor:
             output: TextIO,
             time_threshold: float = 4,
             generate_summary: bool = False,
-            fail_on_error: bool = False) -> None:
+            fail_on_error: bool = False,
+            date_format: str = r'%d/%m/%y') -> None:
         self.input = input
         self.tracklines_input = tracklines_input
         self.output = output
@@ -121,6 +122,7 @@ class SyntheticSupplementSvpProcessor:
         # show what SVPs were generated
         self.generate_summary = generate_summary
         self.fail_on_error = fail_on_error
+        self.date_format = date_format
 
         # list of SvpProfiles
         self.svps = []
@@ -239,6 +241,7 @@ class SyntheticSupplementSvpProcessor:
         # from this file. SVP files can store location data, but it is typically
         # not included.
         parser = TracklinesParser()
+        parser.date_format = self.date_format
         self.tracklines = parser.read(self.tracklines_input)
         if self.generate_summary:
             tl_geojson = Path(self.output.name + '_tracklines.geojson')
@@ -272,7 +275,8 @@ def synthetic_supplement_svp_process(
         output: TextIO,
         time_threshold: float = 4,
         generate_summary: bool = False,
-        fail_on_error: bool = False) -> None:
+        fail_on_error: bool = False,
+        date_format: str = r'%d/%m/%y') -> None:
     """
     Main entry point for the synthetic supplement process whereby synthetic
     SVP profiles are generate to fill in the gaps between recorded SVPs. Only
@@ -287,6 +291,7 @@ def synthetic_supplement_svp_process(
         fail_on_error: escalates any warnings that occur to exceptions
         time_threshold: only periods larger than this time (in hours) will
             be supplemented with synthetic SVPs
+        date_format: python format string to parse date (eg '%d/%m/%y')
 
     Returns:
         None
@@ -301,7 +306,8 @@ def synthetic_supplement_svp_process(
         output=output,
         time_threshold=time_threshold,
         generate_summary=generate_summary,
-        fail_on_error=fail_on_error
+        fail_on_error=fail_on_error,
+        date_format=date_format
     )
     processor.process()
 

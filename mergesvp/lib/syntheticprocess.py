@@ -54,7 +54,8 @@ class SyntheticSvpProcessor:
             output: TextIO,
             time_gap: float = 4,
             generate_summary: bool = False,
-            fail_on_error: bool = False) -> None:
+            fail_on_error: bool = False,
+            date_format: str = r'%d/%m/%y') -> None:
         self.tracklines_input = tracklines_input
         self.output = output
         self.time_gap = time_gap
@@ -62,6 +63,7 @@ class SyntheticSvpProcessor:
         # show what SVPs were generated
         self.generate_summary = generate_summary
         self.fail_on_error = fail_on_error
+        self.date_format = date_format
 
         # list of SvpProfiles
         self.svps = []
@@ -105,6 +107,7 @@ class SyntheticSvpProcessor:
         # load the tracklines data. Location information for each synthetic SVP
         # is derived from this data
         parser = TracklinesParser()
+        parser.date_format = self.date_format
         tracklines = parser.read(self.tracklines_input)
         if self.generate_summary:
             tl_geojson = Path(self.output.name + '_tracklines.geojson')
@@ -147,7 +150,8 @@ def synthetic_svp_process(
         output: TextIO,
         time_gap: float = 4,
         generate_summary: bool = False,
-        fail_on_error: bool = False) -> None:
+        fail_on_error: bool = False,
+        date_format: str = r'%d/%m/%y') -> None:
     """
     Main entry point for the synthetic process whereby synthetic SVP
     profiles are generated along the entire length of a tracklines dataset.
@@ -172,6 +176,7 @@ def synthetic_svp_process(
         output=output,
         time_gap=time_gap,
         generate_summary=generate_summary,
-        fail_on_error=fail_on_error
+        fail_on_error=fail_on_error,
+        date_format=date_format
     )
     processor.process()
