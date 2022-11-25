@@ -125,6 +125,13 @@ class Trackline:
         self.points = []
 
 
+    @property
+    def start(self) -> datetime:
+        """ Gets the start timestamp of this trackline
+        """
+        return self.points[0].timestamp
+
+
     def append(self, point: TracklinePoint) -> None:
         """
         Args:
@@ -140,6 +147,13 @@ class Trackline:
         first_pt = self.points[0].timestamp
         last_pt = self.points[-1].timestamp
         return timestamp >= first_pt and timestamp <= last_pt
+
+
+    def sort(self) -> None:
+        """ tracklines points may not be written to this file in chronological
+        order. If called, this function will sort them by timestamp.
+        """
+        self.points.sort(key=lambda x: x.timestamp)
 
 
     def get_lerp_point(self, timestamp: datetime) -> TracklinePoint:
@@ -273,3 +287,14 @@ def tracklines_to_geojson_file(
                 indent=2
             )
         )
+
+
+def sort_tracklines(tracklines: List[Trackline]) -> None:
+    """ Sorts a list of tracklines in place
+    """
+    # to sort a list of tracklines, we must first make sure all the
+    # points in each trackline are sorted.
+    for trackline in tracklines:
+        trackline.sort()
+    # then we can sort the list of tracklines
+    tracklines.sort(key=lambda x: x.start)

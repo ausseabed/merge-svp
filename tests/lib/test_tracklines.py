@@ -4,7 +4,8 @@ from datetime import datetime
 from mergesvp.lib.tracklines import \
     TracklinesParser, \
     TracklinePoint, \
-    Trackline
+    Trackline, \
+    sort_tracklines
 
 
 def test_parse_line():
@@ -236,3 +237,58 @@ def test_trackline_filter_duplicates():
     assert len(no_dups.points) == 3
     assert no_dups.points[0] == tl1_pt1
     assert no_dups.points[2] == tl1_pt3
+
+
+def test_tracklines_sorting():
+
+    tl1_pt1 = TracklinePoint(
+        datetime(2000, 1, 3, 12, 0, 0),
+        20,
+        30,
+        200
+    )
+    tl1_pt2 = TracklinePoint(
+        datetime(2000, 1, 1, 12, 0, 0),
+        60,
+        10,
+        210
+    )
+    tl1_pt3 = TracklinePoint(
+        datetime(2000, 1, 2, 12, 0, 0),
+        60,
+        30,
+        220
+    )
+    trackline1 = Trackline(None, None)
+    trackline1.points = [tl1_pt1, tl1_pt2, tl1_pt3]
+
+    tl2_pt1 = TracklinePoint(
+        datetime(2000, 1, 6, 12, 0, 0),
+        120,
+        30,
+        200
+    )
+    tl2_pt2 = TracklinePoint(
+        datetime(2000, 1, 5, 12, 0, 0),
+        160,
+        10,
+        210
+    )
+    tl2_pt3 = TracklinePoint(
+        datetime(2000, 1, 4, 12, 0, 0),
+        160,
+        30,
+        220
+    )
+    trackline2 = Trackline(None, None)
+    trackline2.points = [tl2_pt1, tl2_pt2, tl2_pt3]
+
+    tracklines = [trackline2, trackline1]
+
+    sort_tracklines(tracklines)
+
+    assert len(tracklines) == 2
+    assert tracklines[0] == trackline1
+    assert tracklines[1] == trackline2
+    assert tracklines[0].points[0] == tl1_pt2
+    assert tracklines[1].points[0] == tl2_pt3

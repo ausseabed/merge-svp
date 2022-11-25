@@ -14,7 +14,8 @@ from mergesvp.lib.parsers import CarisSvpParser
 from mergesvp.lib.tracklines import \
     Trackline, \
     TracklinesParser, \
-    tracklines_to_geojson_file
+    tracklines_to_geojson_file, \
+    sort_tracklines
 from mergesvp.lib.ssminterface import get_ssm_synthetic_svp
 
 
@@ -109,6 +110,7 @@ class SyntheticSvpProcessor:
         parser = TracklinesParser()
         parser.date_format = self.date_format
         tracklines = parser.read(self.tracklines_input)
+        sort_tracklines(tracklines)
         if self.generate_summary:
             tl_geojson = Path(self.output.name + '_tracklines.geojson')
             tracklines_to_geojson_file(tracklines, tl_geojson)
@@ -164,6 +166,7 @@ def synthetic_svp_process(
             locations of synthetic SVP data
         fail_on_error: escalates any warnings that occur to exceptions
         time_gap: time between each synthetic SVP profile
+        date_format: python format string to parse date (eg '%d/%m/%y')
 
     Returns:
         None
