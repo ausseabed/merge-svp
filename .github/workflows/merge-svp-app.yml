@@ -45,8 +45,8 @@ jobs:
         pip install appdirs
         pip install scipy
         pip install gsw
-        pip install hyo2.abc --no-dependencies
-        pip install git+https://github.com/hydroffice/hyo2_soundspeed.git --no-dependencies
+        pip install https://github.com/hydroffice/hyo2_abc2/archive/refs/heads/master.zip --no-dependencies
+        pip install https://github.com/hydroffice/hyo2_soundspeed/archive/refs/heads/master.zip --no-dependencies
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
