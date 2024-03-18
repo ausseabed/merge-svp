@@ -10,9 +10,9 @@ from datetime import datetime
 from typing import List, Tuple
 
 from mergesvp.lib.errors import SyntheticSvpGenerationException
-from hyo2.soundspeed.atlas.abstract import AbstractAtlas
-from hyo2.soundspeed.atlas.woa18 import Woa18, AbstractAtlas
-from hyo2.abc.lib.progress.cli_progress import CliProgress
+from hyo2.ssm2.lib.atlas.abstract import AbstractAtlas
+from hyo2.ssm2.lib.atlas.woa18 import Woa18, AbstractAtlas
+from hyo2.abc2.lib.progress.cli_progress import CliProgress
 
 
 logging.basicConfig()

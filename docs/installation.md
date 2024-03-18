@@ -30,7 +30,7 @@ Open a Anaconda Prompt. If Conda was installed on Windows a "Anaconda Prompt (Mi
 
 In the Conda command prompt type the following command to create a new Conda environment
 
-    conda create -y -n mergesvp python=3.9
+    conda create -y -n mergesvp python=3.11
 
 Then activate the Conda environment that has just been created.
 
@@ -40,7 +40,7 @@ Now install dependencies needed by Sound Speed Manager into the mergesvp conda e
 
 Note: during the installation of the following dependencies several warning messages may be presented stating that some dependencies are missing. These can be ignored as they related to components of Sound Speed Manager that are not used by Merge SVP.
 
-    pip install hyo2.abc --no-dependencies
+    pip install https://github.com/hydroffice/hyo2_abc2/archive/refs/heads/master.zip --no-dependencies
     pip install netCDF4
     pip install requests
     pip install pyproj
@@ -53,7 +53,7 @@ Note: during the installation of the following dependencies several warning mess
 
 Install Sound Speed Manager
 
-    pip install git+https://github.com/hydroffice/hyo2_soundspeed.git --no-dependencies
+    pip install https://github.com/hydroffice/hyo2_soundspeed/archive/refs/heads/master.zip --no-dependencies
 
 
 ### Download and Install Merge SVP
